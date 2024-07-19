@@ -1,28 +1,62 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { CssBaseline } from "@mui/material";
 
-// RUN this command to start the electron app
-// npm run dev
-// This will start the react app and the electron app
+import "./App.css";
+import Login from "./pages/Login";
+import BeePicker from "./pages/BeePicker";
+import Home from "./pages/Home";
+import Profile from "./pages/Profile";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import Sidebar from "./components/Sidebar";
 
 function App() {
+  const [isSidebarOpen, setSidebarOpen] = useState(true); // Sidebar is initially open
+  const [isSidebarExpanded, setSidebarExpanded] = useState(false); // Sidebar is initially minimized
+
+  const handleSidebarOpen = () => {
+    setSidebarOpen(true);
+  };
+
+  const handleSidebarClose = () => {
+    setSidebarOpen(false);
+  };
+
+  const handleSidebarToggleExpand = () => {
+    setSidebarExpanded((prev) => !prev);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <Router>
+      <div className="App">
+        <CssBaseline />
+        <Sidebar
+          open={isSidebarOpen}
+          onClose={handleSidebarClose}
+          expanded={isSidebarExpanded}
+          onToggleExpand={handleSidebarToggleExpand}
+        />
+        <div
+          className="App-body"
+          style={{
+            marginLeft: isSidebarExpanded ? "240px" : "60px",
+            transition: "margin-left 0.3s",
+          }}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
+          <Header />
+          <main className="App-main">
+            <Routes>
+              <Route exact path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/beePicker" element={<BeePicker />} />
+              <Route path="/profile" element={<Profile />} />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </div>
+    </Router>
   );
 }
 
