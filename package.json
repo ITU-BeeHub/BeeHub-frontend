@@ -14,8 +14,10 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "dev" : "nf start",
+    "electron": "electron ."
   },
   "eslintConfig": {
     "extends": [
@@ -34,5 +36,11 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "devDependencies": {
+    "electron": "^31.2.1",
+    "foreman": "^3.0.1"
+  },
+  "main": "src/electron-starter.js",
+  "homepage": "./"
 }

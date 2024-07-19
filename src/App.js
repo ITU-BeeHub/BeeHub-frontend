@@ -1,6 +1,10 @@
 import logo from './logo.svg';
 import './App.css';
 
+// RUN this command to start the electron app
+// npm run dev
+// This will start the react app and the electron app
+
 function App() {
   return (
     <div className="App">
