@@ -1,22 +1,15 @@
-import React from 'react';
+// src/components/Layout.tsx
+import Sidebar from './SideBar';
 import Header from './Header';
 
-
-interface LayoutProps {
-  children: React.ReactNode;
-}
-
-export default function Layout({ children }: LayoutProps) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen">
-
-      <div className="flex flex-1 flex-col">
+      <Sidebar />
+      <main className="flex-1 p-4 lg:p-6 bg-[#F5FDFD]">
         <Header />
-
-          {children}
-      
-
-      </div>
+        {children}
+      </main>
     </div>
   );
 }

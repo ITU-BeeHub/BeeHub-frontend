@@ -1,56 +1,86 @@
-import { Link } from 'react-router-dom';
-// Remove the duplicate import statement for 'SVGProps'
+import { NavLink } from 'react-router-dom';
 import { JSX } from 'react/jsx-runtime';
 import { SVGProps } from 'react';
-
 
 export default function Sidebar() {
   return (
     <aside className="hidden w-[280px] flex-col border-r bg-white p-4 lg:flex">
-      <Link to="/" className="flex items-center gap-2 py-4">
+      <NavLink to="/" className="flex items-center gap-2 py-4">
         <BeakerIcon className="h-8 w-8 text-[#FDC003]" />
         <span className="text-2xl font-bold text-[#212121]">BeeHub</span>
-      </Link>
+      </NavLink>
       <nav className="mt-8 flex flex-col gap-2">
-        <Link
+        <NavLink
           to="/beepicker"
-          className="flex items-center gap-3 rounded-lg p-3 text-[#212121] transition-colors hover:bg-[#FDC003] hover:text-white"
+          className={({ isActive }) =>
+            `flex items-center gap-3 rounded-lg p-3 transition-colors ${
+              isActive
+                ? 'border-l-4 border-[#FDC003] bg-gray-100 text-[#212121]'
+                : 'text-[#212121] hover:bg-[#FDC003] hover:text-white'
+            }`
+          }
+          
         >
           <PickaxeIcon className="h-6 w-6" />
           <span>BeePicker</span>
-        </Link>
-        <Link
+        </NavLink>
+        <NavLink
           to="/beesync"
-          className="flex items-center gap-3 rounded-lg p-3 text-[#212121] transition-colors hover:bg-[#FDC003] hover:text-white"
+          className={({ isActive }) =>
+            `flex items-center gap-3 rounded-lg p-3 transition-colors ${
+              isActive
+                ? 'border-l-4 border-[#FDC003] bg-gray-100 text-[#212121]'
+                : 'text-[#212121] hover:bg-[#FDC003] hover:text-white'
+            }`
+          }
         >
           <FolderSyncIcon className="h-6 w-6" />
           <span>BeeSync</span>
-        </Link>
-        <Link
+        </NavLink>
+        <NavLink
           to="/beecalendar"
-          className="flex items-center gap-3 rounded-lg p-3 text-[#212121] transition-colors hover:bg-[#FDC003] hover:text-white"
+          className={({ isActive }) =>
+            `flex items-center gap-3 rounded-lg p-3 transition-colors ${
+              isActive
+                ? 'border-l-4 border-[#FDC003] bg-gray-100 text-[#212121]'
+                : 'text-[#212121] hover:bg-[#FDC003] hover:text-white'
+            }`
+          }
         >
           <CalendarIcon className="h-6 w-6" />
           <span>BeeCalendar</span>
-        </Link>
-        <Link
+        </NavLink>
+        <NavLink
           to="/beearchive"
-          className="flex items-center gap-3 rounded-lg p-3 text-[#212121] transition-colors hover:bg-[#FDC003] hover:text-white"
+          className={({ isActive }) =>
+            `flex items-center gap-3 rounded-lg p-3 transition-colors ${
+              isActive
+                ? 'border-l-4 border-[#FDC003] bg-gray-100 text-[#212121]'
+                : 'text-[#212121] hover:bg-[#FDC003] hover:text-white'
+            }`
+          }
         >
           <ArchiveIcon className="h-6 w-6" />
           <span>BeeArchive</span>
-        </Link>
-        <Link
+        </NavLink>
+        <NavLink
           to="/beechat"
-          className="flex items-center gap-3 rounded-lg p-3 text-[#212121] transition-colors hover:bg-[#FDC003] hover:text-white"
+          className={({ isActive }) =>
+            `flex items-center gap-3 rounded-lg p-3 transition-colors ${
+              isActive
+                ? 'border-l-4 border-[#FDC003] bg-gray-100 text-[#212121]'
+                : 'text-[#212121] hover:bg-[#FDC003] hover:text-white'
+            }`
+          }
         >
           <WebcamIcon className="h-6 w-6" />
           <span>BeeChat</span>
-        </Link>
+        </NavLink>
       </nav>
     </aside>
   );
 }
+
 
 
 

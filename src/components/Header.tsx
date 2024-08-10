@@ -4,7 +4,6 @@ import { JSX } from 'react/jsx-runtime';
 
 
 export default function Header() {
-    console.log('Header rendered');  // Bu satırı ekleyin
   return (
     <header className="flex h-[60px] items-center justify-between border-b bg-white px-4 lg:px-6">
       <Link to="/" className="flex items-center gap-2">  {/* href yerine to kullanıyoruz */}
