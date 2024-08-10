@@ -2,9 +2,9 @@ import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-900 p-4 text-white">
-      <div className="container mx-auto flex flex-col items-center justify-between gap-4 md:flex-row">
-        <p>&copy; 2023 BeeHub. All rights reserved.</p>
+    <footer className="bg-gray-900 py-4 text-white">
+      <div className="flex flex-col items-center gap-4 px-4 md:flex-row md:justify-between">
+        <p className="text-center md:text-left">&copy; 2023 BeeHub. All rights reserved.</p>
         <div className="flex items-center gap-4">
           <Link to="/contact" className="text-gray-400 hover:text-white">
             Contact
