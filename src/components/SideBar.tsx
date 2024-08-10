@@ -1,87 +1,155 @@
-import { NavLink } from 'react-router-dom';
 import { JSX } from 'react/jsx-runtime';
 import { SVGProps } from 'react';
+import { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 
 export default function Sidebar() {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
   return (
-    <aside className="hidden w-[280px] flex-col border-r bg-white p-4 lg:flex">
-      <NavLink to="/" className="flex items-center gap-2 py-4">
-        <BeakerIcon className="h-8 w-8 text-[#FDC003]" />
-        <span className="text-2xl font-bold text-[#212121]">BeeHub</span>
-      </NavLink>
-      <nav className="mt-8 flex flex-col gap-2">
-        <NavLink
-          to="/beepicker"
-          className={({ isActive }) =>
-            `flex items-center gap-3 rounded-lg p-3 transition-colors ${
-              isActive
-                ? 'border-l-4 border-[#FDC003] bg-gray-100 text-[#212121]'
-                : 'text-[#212121] hover:bg-[#FDC003] hover:text-white'
-            }`
-          }
-          
-        >
-          <PickaxeIcon className="h-6 w-6" />
-          <span>BeePicker</span>
-        </NavLink>
-        <NavLink
-          to="/beesync"
-          className={({ isActive }) =>
-            `flex items-center gap-3 rounded-lg p-3 transition-colors ${
-              isActive
-                ? 'border-l-4 border-[#FDC003] bg-gray-100 text-[#212121]'
-                : 'text-[#212121] hover:bg-[#FDC003] hover:text-white'
-            }`
-          }
-        >
-          <FolderSyncIcon className="h-6 w-6" />
-          <span>BeeSync</span>
-        </NavLink>
-        <NavLink
-          to="/beecalendar"
-          className={({ isActive }) =>
-            `flex items-center gap-3 rounded-lg p-3 transition-colors ${
-              isActive
-                ? 'border-l-4 border-[#FDC003] bg-gray-100 text-[#212121]'
-                : 'text-[#212121] hover:bg-[#FDC003] hover:text-white'
-            }`
-          }
-        >
-          <CalendarIcon className="h-6 w-6" />
-          <span>BeeCalendar</span>
-        </NavLink>
-        <NavLink
-          to="/beearchive"
-          className={({ isActive }) =>
-            `flex items-center gap-3 rounded-lg p-3 transition-colors ${
-              isActive
-                ? 'border-l-4 border-[#FDC003] bg-gray-100 text-[#212121]'
-                : 'text-[#212121] hover:bg-[#FDC003] hover:text-white'
-            }`
-          }
-        >
-          <ArchiveIcon className="h-6 w-6" />
-          <span>BeeArchive</span>
-        </NavLink>
-        <NavLink
-          to="/beechat"
-          className={({ isActive }) =>
-            `flex items-center gap-3 rounded-lg p-3 transition-colors ${
-              isActive
-                ? 'border-l-4 border-[#FDC003] bg-gray-100 text-[#212121]'
-                : 'text-[#212121] hover:bg-[#FDC003] hover:text-white'
-            }`
-          }
-        >
-          <WebcamIcon className="h-6 w-6" />
-          <span>BeeChat</span>
-        </NavLink>
-      </nav>
-    </aside>
+    <div className="flex flex-col h-screen">
+      <aside className={`bg-white h-full border-r p-4 transition-all duration-300 flex flex-col justify-between ${isCollapsed ? 'w-20' : 'w-[280px]'}`}>
+        <div>
+          <nav className="px-2">
+            <div className="flex items-center gap-2 py-4 cursor-pointer" onClick={toggleSidebar}>
+              <HamburgerIcon className="h-8 w-8 flex-shrink-0 text-[#FDC003]" />
+              <span
+                className={`overflow-hidden transition-all duration-300 ${
+                  isCollapsed ? 'opacity-0 scale-0' : 'opacity-100 scale-100'
+                }`}
+              >
+                BeeHub
+              </span>
+            </div>
+          </nav>
+          <nav className="mt-8 flex flex-col gap-2">
+            <NavLink
+              to="/beepicker"
+              className={({ isActive }) =>
+                `flex items-center gap-3 p-3 transition-colors ${
+                  isActive
+                    ? 'border-l-8 border-[#FDC003] bg-[#F5FDFD] text-[#212121] -mr-4 rounded-l-lg'
+                    : 'text-[#212121] hover:bg-[#FDC003] hover:text-white rounded-lg'
+                }`
+              }
+            >
+              <PickaxeIcon className="h-6 w-6 flex-shrink-0" />
+              <span
+                className={`overflow-hidden transition-all duration-300 ${
+                  isCollapsed ? 'opacity-0 scale-0' : 'opacity-100 scale-100'
+                }`}
+              >
+                BeePicker
+              </span>
+            </NavLink>
+            <NavLink
+              to="/beesync"
+              className={({ isActive }) =>
+                `flex items-center gap-3 p-3 transition-colors ${
+                  isActive
+                    ? 'border-l-8 border-[#FDC003] bg-[#F5FDFD] text-[#212121] -mr-4 rounded-l-lg'
+                    : 'text-[#212121] hover:bg-[#FDC003] hover:text-white rounded-lg'
+                }`
+              }
+            >
+              <FolderSyncIcon className="h-6 w-6 flex-shrink-0" />
+              <span
+                className={`overflow-hidden transition-all duration-300 ${
+                  isCollapsed ? 'opacity-0 scale-0' : 'opacity-100 scale-100'
+                }`}
+              >
+                BeeSync
+              </span>
+            </NavLink>
+            <NavLink
+              to="/beecalendar"
+              className={({ isActive }) =>
+                `flex items-center gap-3 p-3 transition-colors ${
+                  isActive
+                    ? 'border-l-8 border-[#FDC003] bg-[#F5FDFD] text-[#212121] -mr-4 rounded-l-lg'
+                    : 'text-[#212121] hover:bg-[#FDC003] hover:text-white rounded-lg'
+                }`
+              }
+            >
+              <CalendarIcon className="h-6 w-6 flex-shrink-0" />
+              <span
+                className={`overflow-hidden transition-all duration-300 ${
+                  isCollapsed ? 'opacity-0 scale-0' : 'opacity-100 scale-100'
+                }`}
+              >
+                BeeCalendar
+              </span>
+            </NavLink>
+            <NavLink
+              to="/beearchive"
+              className={({ isActive }) =>
+                `flex items-center gap-3 p-3 transition-colors ${
+                  isActive
+                    ? 'border-l-8 border-[#FDC003] bg-[#F5FDFD] text-[#212121] -mr-4 rounded-l-lg'
+                    : 'text-[#212121] hover:bg-[#FDC003] hover:text-white rounded-lg'
+                }`
+              }
+            >
+              <ArchiveIcon className="h-6 w-6 flex-shrink-0" />
+              <span
+                className={`overflow-hidden transition-all duration-300 ${
+                  isCollapsed ? 'opacity-0 scale-0' : 'opacity-100 scale-100'
+                }`}
+              >
+                BeeArchive
+              </span>
+            </NavLink>
+            <NavLink
+              to="/beechat"
+              className={({ isActive }) =>
+                `flex items-center gap-3 p-3 transition-colors ${
+                  isActive
+                    ? 'border-l-8 border-[#FDC003] bg-[#F5FDFD] text-[#212121] -mr-4 rounded-l-lg'
+                    : 'text-[#212121] hover:bg-[#FDC003] hover:text-white rounded-lg'
+                }`
+              }
+            >
+              <WebcamIcon className="h-6 w-6 flex-shrink-0" />
+              <span
+                className={`overflow-hidden transition-all duration-300 ${
+                  isCollapsed ? 'opacity-0 scale-0' : 'opacity-100 scale-100'
+                }`}
+              >
+                BeeChat
+              </span>
+            </NavLink>
+          </nav>
+        </div>
+        
+  {/* Settings Navigation Anchored to Bottom */}
+  <NavLink
+    to="/settings"
+    className={({ isActive }) =>
+      `flex items-center gap-3 p-3 transition-colors ${
+        isActive
+          ? 'border-l-8 border-[#FDC003] bg-[#F5FDFD] text-[#212121] -mr-4 rounded-l-lg'
+          : 'text-[#212121] hover:bg-[#FDC003] hover:text-white rounded-lg'
+      }`
+    }
+  >
+    <SettingsIcon className="h-6 w-6 flex-shrink-0" />
+    <span
+      className={`overflow-hidden transition-all duration-300 ${
+        isCollapsed ? 'opacity-0 scale-0' : 'opacity-100 scale-100'
+      }`}
+    >
+      Settings
+    </span>
+  </NavLink>
+        
+      </aside>
+    </div>
   );
 }
-
-
 
 
 function ArchiveIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
@@ -103,6 +171,22 @@ function ArchiveIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
         <path d="M10 12h4" />
       </svg>
     )
+  }
+
+  function SettingsIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
+    return (
+      <svg
+        {...props} 
+        xmlns="http://www.w3.org/2000/svg"
+         width="1em" 
+         height="1em" 
+         viewBox="0 0 24 24">
+          <path fill="currentColor" fillRule="evenodd" 
+            d="m19.85 8.75l4.15.83v4.84l-4.15.83l2.35 3.52l-3.43 3.43l-3.52-2.35l-.83 4.15H9.58l-.83-4.15l-3.52 2.35l-3.43-3.43l2.35-3.52L0 14.42V9.58l4.15-.83L1.8 5.23L5.23 1.8l3.52 2.35L9.58 0h4.84l.83 4.15l3.52-2.35l3.43 3.43zm-1.57 5.07l4-.81v-2l-4-.81l-.54-1.3l2.29-3.43l-1.43-1.43l-3.43 2.29l-1.3-.54l-.81-4h-2l-.81 4l-1.3.54l-3.43-2.29l-1.43 1.43L6.38 8.9l-.54 1.3l-4 .81v2l4 .81l.54 1.3l-2.29 3.43l1.43 1.43l3.43-2.29l1.3.54l.81 4h2l.81-4l1.3-.54l3.43 2.29l1.43-1.43l-2.29-3.43zm-8.186-4.672A3.43 3.43 0 0 1 12 8.57A3.44 3.44 0 0 1 15.43 12a3.43 3.43 0 1 1-5.336-2.852m.956 4.274c.281.188.612.288.95.288A1.7 1.7 0 0 0 13.71 12a1.71 1.71 0 1 0-2.66 1.422" 
+            clipRule="evenodd">
+          </path>
+        </svg>
+    );
   }
   
   
@@ -197,7 +281,6 @@ function ArchiveIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
     )
   }
   
-  
   function WebcamIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
     return (
       <svg
@@ -218,4 +301,19 @@ function ArchiveIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
         <path d="M12 22v-4" />
       </svg>
     )
+}
+
+function HamburgerIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
+    </svg>
+  );
 }
