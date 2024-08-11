@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { useState } from "react";
 
 import ArchiveIcon from "./icons/ArchiveIcon";
 import CalendarIcon from "./icons/CalendarIcon";
@@ -7,7 +8,6 @@ import WebcamIcon from "./icons/WebCamIcon";
 import PickaxeIcon from "./icons/PickaxeIcon";
 import SettingsIcon from "./icons/SettingsIcon";
 import HamburgerIcon from "./icons/Hamburger";
-import { useState } from "react";
 
 export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -17,7 +17,8 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex h-screen">
+      {/* Sidebar */}
       <aside
         className={`bg-white h-full border-r p-4 transition-all duration-300 flex flex-col justify-between ${
           isCollapsed ? "w-20" : "w-[200px]"
@@ -109,7 +110,7 @@ export default function Sidebar() {
             >
               <ArchiveIcon className="h-6 w-6 flex-shrink-0" />
               <span
-                className={`overflow-hidden transition-all duration-300 ${
+                className={`overflow-hidden transition-transform duration-300 ${
                   isCollapsed ? "opacity-0 scale-0" : "opacity-100 scale-100"
                 }`}
               >
@@ -128,7 +129,7 @@ export default function Sidebar() {
             >
               <WebcamIcon className="h-6 w-6 flex-shrink-0" />
               <span
-                className={`overflow-hidden transition-all duration-300 ${
+                className={`overflow-hidden transition-transform duration-300 ${
                   isCollapsed ? "opacity-0 scale-0" : "opacity-100 scale-100"
                 }`}
               >
@@ -138,27 +139,32 @@ export default function Sidebar() {
           </nav>
         </div>
 
-        {/* Settings Navigation Anchored to Bottom */}
-        <NavLink
-          to="/settings"
-          className={({ isActive }) =>
-            `flex items-center gap-3 p-3 transition-all duration-0 ${
-              isActive
-                ? "border-l-4 border-[#FDC003] bg-[#F5FDFD] text-[#212121] -mr-4 rounded-l-lg"
-                : "text-[#212121] hover:bg-[#FDC003] hover:text-white rounded-lg"
-            }`
-          }
-        >
-          <SettingsIcon className="h-6 w-6 flex-shrink-0" />
-          <span
-            className={`overflow-hidden transition duration-300 ${
-              isCollapsed ? "opacity-0 scale-0" : "opacity-100 scale-100"
-            }`}
+        <div className="mt-auto h-10">
+          {/* Settings Navigation Anchored to Bottom */}
+          <NavLink
+            to="/settings"
+            className={({ isActive }) =>
+              `flex items-center gap-3 p-3 transition-all duration-0 ${
+                isActive
+                  ? "border-l-4 border-[#FDC003] bg-[#F5FDFD] text-[#212121] -mr-4 rounded-l-lg"
+                  : "text-[#212121] hover:bg-[#FDC003] hover:text-white rounded-lg"
+              }`
+            }
           >
-            Settings
-          </span>
-        </NavLink>
+            <SettingsIcon className="h-6 w-6 flex-shrink-0" />
+            <span
+              className={`overflow-hidden transition-transform duration-300 ${
+                isCollapsed ? "opacity-0 scale-0" : "opacity-100 scale-100"
+              }`}
+            >
+              Settings
+            </span>
+          </NavLink>
+
+
+        </div>
       </aside>
+
     </div>
   );
 }
