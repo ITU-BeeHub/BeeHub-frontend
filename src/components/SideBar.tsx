@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import ArchiveIcon from "./icons/ArchiveIcon";
 import CalendarIcon from "./icons/CalendarIcon";
@@ -11,6 +11,26 @@ import HamburgerIcon from "./icons/Hamburger";
 
 export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  // Collapse sidebar on narrow screens
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 768px)");
+
+    const handleMediaQueryChange = (event: MediaQueryListEvent) => {
+      setIsCollapsed(event.matches);
+    };
+
+    // Set initial state
+    setIsCollapsed(mediaQuery.matches);
+
+    // Add event listener
+    mediaQuery.addEventListener("change", handleMediaQueryChange);
+
+    // Clean up event listener
+    return () => {
+      mediaQuery.removeEventListener("change", handleMediaQueryChange);
+    };
+  }, []);
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
