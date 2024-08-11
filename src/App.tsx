@@ -5,6 +5,7 @@ import Layout from "./components/Layout";
 import { AuthProvider } from "./context/AuthContext";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
+import Beepicker from "./pages/BeePicker";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/beepicker" element={<Beepicker />} />
           </Routes>
         </Layout>
       </Router>
