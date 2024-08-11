@@ -20,4 +20,5 @@ function SettingsIcon(
     </svg>
   );
 }
+
 export default SettingsIcon;
