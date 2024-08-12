@@ -1,8 +1,8 @@
-import { Button } from "../components/ui/button";
-import CourseList from "../components/CourseList";
-import CourseSelector from "../components/CourseSelector";
-import { Course } from "../types/Course";
 import { useState } from "react";
+import CourseSelector from "../components/CourseSelector";
+import CourseList from "../components/CourseList";
+import { Button } from "../components/ui/button";
+import { Course } from "../../../types/Course";
 
 const BeePicker: React.FC = () => {
   const [selectedCourses, setSelectedCourses] = useState<Course[]>([]);

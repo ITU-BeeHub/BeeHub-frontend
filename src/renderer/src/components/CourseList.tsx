@@ -1,7 +1,7 @@
 import React from "react";
-import { Button } from "./ui/button";
+import { Button } from "../components/ui/button";
 import XIcon from "../components/icons/XIcon";
-import { Course } from "../types/Course";
+import { Course } from "../../../types/Course";
 
 interface CourseListProps {
   courses: Course[];

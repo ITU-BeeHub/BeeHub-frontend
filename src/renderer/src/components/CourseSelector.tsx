@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
 import { Button } from "./ui/button";
 
-import { Course } from "../types/Course";
+import { Course } from "../../../types/Course";
 
 interface CourseSelectorProps {
   onAddCourse: (course: Course) => void;
