@@ -24,8 +24,8 @@ const availableCourses: Course[] = [
     code: "MATH201",
     crn: "67890",
     day: "Wednesday",
-    startTime: "10:00 AM",
-    endTime: "11:00 AM",
+    startTime: "10:00",
+    endTime: "11:00",
   },
   {
     id: 3,
@@ -33,8 +33,8 @@ const availableCourses: Course[] = [
     code: "PHYS150",
     crn: "54321",
     day: "Friday",
-    startTime: "11:00 AM",
-    endTime: "12:00 PM",
+    startTime: "11:00",
+    endTime: "12:00",
   },
   // Diğer dersler...
 ];

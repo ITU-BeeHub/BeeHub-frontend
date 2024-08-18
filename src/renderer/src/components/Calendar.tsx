@@ -11,8 +11,17 @@ interface CalendarProps {
 
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 const hours = [
-  "8:00", "9:00", "10:00", "11:00", "12:00", "13:00", "14:00",
-  "15:00", "16:00", "17:00", "18:00"
+  "8:00",
+  "9:00",
+  "10:00",
+  "11:00",
+  "12:00",
+  "13:00",
+  "14:00",
+  "15:00",
+  "16:00",
+  "17:00",
+  "18:00",
 ];
 
 const Calendar: React.FC<CalendarProps> = ({ courses, onRemoveCourse }) => {
@@ -25,8 +34,9 @@ const Calendar: React.FC<CalendarProps> = ({ courses, onRemoveCourse }) => {
     const startHour = formatTime(startTime);
     const endHour = formatTime(endTime);
 
-    const startRow = Math.floor((startHour - 8) * 2 + 2);
-    const endRow = Math.floor((endHour - 8) * 2 + 2);
+    // Calculate the grid row numbers based on time, adjusted to half-hour slots
+    const startRow = Math.round((startHour - 8) * 2) + 4; // Start from 2nd row to match the header
+    const endRow = Math.round((endHour - 8) * 2) + 4;
 
     return `${startRow} / ${endRow}`;
   };
@@ -38,40 +48,36 @@ const Calendar: React.FC<CalendarProps> = ({ courses, onRemoveCourse }) => {
         <span className="text-[#212121] font-medium">Weekly Calendar</span>
       </div>
       <div className="flex flex-row">
-        {/* Saatler */}
+        {/* Saat Sütunu */}
         <div className="w-16 h-[32rem] grid mr-1">
           <div className="relative place-self-stretch">
-            <div className="absolute left-0 right-0 bottom-0 top-0 grid grid-flow-row grid-rows-[1fr_repeat(11,1fr)]">
+            <div className="absolute left-0 right-0 bottom-0 top-0 grid grid-flow-row grid-rows-[repeat(12,_2fr)]">
               <div className="box-border"></div> {/* Empty first row */}
               {hours.map((hour) => (
-                <div key={hour} className="box-border flex justify-end items-center">
+                <div
+                  key={hour}
+                  className="box-border flex justify-end items-center"
+                >
                   {hour}
                 </div>
               ))}
             </div>
           </div>
         </div>
-        {/* Günler ve Dersler */}
-        <div className="w-3 h-[32rem] grid">
-          <div className="relative place-self-stretch">
-            <div className="absolute left-0 right-0 bottom-0 top-0 grid grid-flow-row grid-rows-[repeat(12,1fr)]">
-              <div className="box-border"></div>
-              {hours.map((_, index) => (
-                <div key={index} className="border-t-2 box-border"></div>
-              ))}
-            </div>
-          </div>
-        </div>
+        {/* Takvim Hücreleri */}
         {daysOfWeek.map((day) => (
-          <div key={day} className="flex-1 h-[32rem] grid border-l-2 border-dashed">
+          <div
+            key={day}
+            className="flex-1 h-[32rem] grid border-l-2 border-dashed"
+          >
             <div className="relative place-self-stretch">
-              <div className="absolute left-0 right-0 bottom-0 top-0 grid grid-flow-row grid-rows-[1fr_repeat(11,1fr)]">
-                <div className="box-border text-center align-middle">{day}</div>
+              <div className="absolute left-0 right-0 bottom-0 top-0 grid grid-flow-row grid-rows-[repeat(12,_2fr)]">
+                <div className="text-center align-middle">{day}</div>
                 {hours.map((_, index) => (
-                  <div key={index} className="border-t-2 border-dashed box-border"></div>
+                  <div key={index} className="box-border relative"></div>
                 ))}
               </div>
-              <div className="events mx-2 absolute left-0 right-0 bottom-0 top-0 grid grid-flow-row grid-rows-[repeat(22,_minmax(0,_1fr))]">
+              <div className="events mx-2 absolute left-0 right-0 bottom-0 top-0 grid grid-flow-row grid-rows-[repeat(24,_1fr)]">
                 {courses
                   .filter((course) => course.day === day)
                   .map((course) => {
@@ -82,9 +88,8 @@ const Calendar: React.FC<CalendarProps> = ({ courses, onRemoveCourse }) => {
                     return (
                       <div
                         key={course.crn}
-                        className="visible-scrollbar overflow-scroll text-xs rounded-xl box-border break-words p-1"
+                        className="overflow-scroll text-xs rounded-xl box-border break-words p-1"
                         style={{
-                          scrollbarWidth: "none",
                           gridRow: gridRow,
                           backgroundColor: "#FDC003",
                         }}
@@ -111,6 +116,5 @@ const Calendar: React.FC<CalendarProps> = ({ courses, onRemoveCourse }) => {
     </div>
   );
 };
-
 
 export default Calendar;
