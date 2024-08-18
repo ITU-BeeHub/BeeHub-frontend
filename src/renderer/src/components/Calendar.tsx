@@ -2,7 +2,7 @@ import React from "react";
 import { Course } from "../../../types/Course";
 import CalendarDaysIcon from "./icons/CalendarDaysIcon";
 import { Button } from "./ui/button";
-import XIcon from "./icons/XIcon";
+import XIcon from "../components/icons/XIcon";
 
 interface CalendarProps {
   courses: Course[];
@@ -42,7 +42,7 @@ const Calendar: React.FC<CalendarProps> = ({ courses, onRemoveCourse }) => {
   };
 
   return (
-    <div className="mt-2 bg-white rounded-lg shadow h-auto w-full overflow-x-auto p-4">
+    <div className="mt-2 bg-white rounded-lg shadow h-auto w-full overflow-x-auto p-4  ">
       <div className="flex items-center pb-2 mb-4">
         <CalendarDaysIcon className="h-6 w-6 text-[#6B7280] mr-4" />
         <span className="text-[#212121] font-medium">Weekly Calendar</span>
@@ -52,11 +52,11 @@ const Calendar: React.FC<CalendarProps> = ({ courses, onRemoveCourse }) => {
         <div className="w-16 h-[32rem] grid mr-1">
           <div className="relative place-self-stretch">
             <div className="absolute left-0 right-0 bottom-0 top-0 grid grid-flow-row grid-rows-[repeat(12,_2fr)]">
-              <div className="box-border"></div> {/* Empty first row */}
+              <div className="box-border "></div> {/* Empty first row */}
               {hours.map((hour) => (
                 <div
                   key={hour}
-                  className="box-border flex justify-end items-center"
+                  className="box-border flex justify-end items-center border-dashed"
                 >
                   {hour}
                 </div>
@@ -68,16 +68,19 @@ const Calendar: React.FC<CalendarProps> = ({ courses, onRemoveCourse }) => {
         {daysOfWeek.map((day) => (
           <div
             key={day}
-            className="flex-1 h-[32rem] grid border-l-2 border-dashed"
+            className="flex-1 h-[32rem] grid  border-gray-300"
           >
             <div className="relative place-self-stretch">
               <div className="absolute left-0 right-0 bottom-0 top-0 grid grid-flow-row grid-rows-[repeat(12,_2fr)]">
-                <div className="text-center align-middle">{day}</div>
+                <div className="text-center flex-center align-middle">{day}</div>
                 {hours.map((_, index) => (
-                  <div key={index} className="box-border relative"></div>
+                  <div
+                    key={index}
+                    className="box-border relative border-t-2  border-dashed order-gray-300"
+                  ></div>
                 ))}
               </div>
-              <div className="events mx-2 absolute left-0 right-0 bottom-0 top-0 grid grid-flow-row grid-rows-[repeat(24,_1fr)]">
+              <div className="events mx-2 absolute left-0 right-0 bottom-0 top-0 grid grid-flow-row border-l-2 border-dashed grid-rows-[repeat(24,_1fr)]">
                 {courses
                   .filter((course) => course.day === day)
                   .map((course) => {
@@ -88,30 +91,38 @@ const Calendar: React.FC<CalendarProps> = ({ courses, onRemoveCourse }) => {
                     return (
                       <div
                         key={course.crn}
-                        className="overflow-scroll text-xs rounded-xl box-border break-words p-1"
+                        className="text-xs rounded-xl box-border break-words p-1 relative flex flex-col justify-center items-center"
                         style={{
                           gridRow: gridRow,
                           backgroundColor: "#FDC003",
                         }}
                       >
-                        {course.code} <br />
-                        {course.name} <br />
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-[#0372CE] hover:bg-transparent hover:text-[#0372CE] ml-2"
-                          onClick={() => onRemoveCourse(course.crn)}
-                        >
-                          <XIcon className="h-4 w-4" />
-                          <span className="sr-only">Remove</span>
-                        </Button>
+                        <div className="absolute top-0 right-0">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="p-0 m-0 text-[#0372CE] hover:bg-transparent hover:text-[#0372CE] h-6 w-6"
+                            onClick={() => onRemoveCourse(course.crn)}
+                          >
+                            <XIcon className="h-2.5 w-2.5  " />
+                            <span className="sr-only">Remove</span>
+                          </Button>
+                        </div>
+                        <div className="text-center text-sm ">
+                          {course.code} <br />
+                          {course.name}
+                        </div>
                       </div>
+
                     );
                   })}
               </div>
             </div>
           </div>
         ))}
+
+
+
       </div>
     </div>
   );

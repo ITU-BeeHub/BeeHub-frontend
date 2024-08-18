@@ -16,7 +16,7 @@ const availableCourses: Course[] = [
     crn: "12345",
     day: "Monday",
     startTime: "9:00",
-    endTime: "11:00",
+    endTime: "11:30",
   },
   {
     id: 2,
