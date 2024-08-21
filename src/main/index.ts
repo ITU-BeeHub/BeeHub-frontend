@@ -1,7 +1,9 @@
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+import { execFile } from 'child_process' // child_process modülünü ekleyin
 
+let backendProcess: any;
 
 function createWindow(): void {
   // Create the browser window.
@@ -10,7 +12,7 @@ function createWindow(): void {
     height: 670,
     show: false,
     autoHideMenuBar: true,
-    ...(process.platform === 'linux' ? {  } : {}),
+    ...(process.platform === 'linux' ? {} : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
@@ -34,6 +36,24 @@ function createWindow(): void {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 }
+// Backend'i başlatmak için bir fonksiyon oluşturun
+function startBackend() {
+  const backendPath = 'C:/Users/Dervis/Desktop/github.com/ITU-BeeHub/BeeHub-backend/main.exe'; // Backend'in yolu
+  backendProcess = execFile(backendPath, (err, stdout, stderr) => {
+    if (err) {
+      console.error(`Backend başlatma hatası: ${err.message}`);
+      return;
+    }
+    console.log(`Backend çıktı:\n${stdout}`);
+    if (stderr) {
+      console.error(`Backend hata çıktı:\n${stderr}`);
+    }
+  });
+
+  backendProcess.on('close', (code: number) => {
+    console.log(`Backend süreci ${code} koduyla kapandı`);
+  });
+}
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -52,6 +72,7 @@ app.whenReady().then(() => {
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
 
+  startBackend();
   createWindow()
 
   app.on('activate', function () {
@@ -67,6 +88,9 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
+    if (backendProcess) {
+      backendProcess.kill();
+    }
   }
 })
 
