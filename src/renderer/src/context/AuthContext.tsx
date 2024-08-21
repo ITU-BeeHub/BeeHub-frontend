@@ -12,8 +12,9 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
+    return localStorage.getItem('isLoggedIn') === 'true';
+  });
   const login = async (email: string, password: string) => {
     try {
       const response = await axios.post('http://localhost:8080/auth/login', {
@@ -23,18 +24,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (response.status === 200) {
         setIsLoggedIn(true);
-        // Eğer token vb. şeyler gerekiyorsa burada kaydedebilirsiniz
-        // localStorage.setItem('token', response.data.token);
+        localStorage.setItem('isLoggedIn', 'true');
       } else {
-        console.log('Login failed');
+        throw new Error('Login failed');
       }
     } catch (error) {
-      console.error('An error occurred during login:', error);
+      setIsLoggedIn(false);
+      localStorage.removeItem('isLoggedIn');
+      throw error; // Hata oluştuğunu bildir
     }
   };
 
+
   const logout = () => {
     setIsLoggedIn(false);
+    localStorage.removeItem('isLoggedIn');
     // Eğer bir token kaydediyorsanız, burada silebilirsiniz
     // localStorage.removeItem('token');
   };
