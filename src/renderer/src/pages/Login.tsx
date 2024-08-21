@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from '../context/AuthContext';
 
 import { Input } from "../components/ui/input";
@@ -10,15 +10,21 @@ import BeakerIcon from "../components/icons/BeakerIcon";
 
 const LoginForm: React.FC = () => {
   const { login } = useAuth();
+  const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const email = (e.target as any).email.value;
     const password = (e.target as any).password.value;
 
-    login(email, password);
+    try {
+      await login(email, password);
+      navigate("/beepicker"); // Login başarılıysa yönlendir
+    } catch (err) {
+      setError("Login failed. Please check your credentials.");
+    }
   };
-
 
   return (
     <main className="flex-1 flex items-center justify-center p-4 lg:p-6">
@@ -30,6 +36,7 @@ const LoginForm: React.FC = () => {
           </Link>
           <p className="mt-2 text-[#212121]">Your University Companion</p>
         </div>
+        {error && <p className="text-red-500">{error}</p>} {/* Hata mesajı */}
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
             <Label htmlFor="email" className="text-[#212121]">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import CourseSelector from "../components/CourseSelector";
@@ -9,10 +9,6 @@ import { Course } from "../../../types/Course";
 import { useAuth } from "../context/AuthContext";
 
 const BeePicker: React.FC = (): React.ReactNode => {
-  const [selectedCourses, setSelectedCourses] = useState<Course[]>([]);
-
-  const navigate = useNavigate();
-
   const handleAddCourse = (course: Course) => {
     setSelectedCourses([...selectedCourses, course]);
   };
@@ -20,12 +16,30 @@ const BeePicker: React.FC = (): React.ReactNode => {
   const handleRemoveCourse = (crn: string) => {
     setSelectedCourses(selectedCourses.filter((course) => course.crn !== crn));
   };
+
+  const [selectedCourses, setSelectedCourses] = useState<Course[]>(() => {
+    const savedCourses = localStorage.getItem('selectedCourses');
+    return savedCourses ? JSON.parse(savedCourses) : [];
+  });
+
+  const navigate = useNavigate();
+
   const { isLoggedIn } = useAuth();
 
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate("/login");
+    }
+  }, [isLoggedIn, navigate]);
+
   if (!isLoggedIn) {
-    navigate("/login");
     return null;
   }
+
+  useEffect(() => {
+    localStorage.setItem('selectedCourses', JSON.stringify(selectedCourses));
+  }, [selectedCourses]);
+
 
   return (
 
