@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from '../context/AuthContext';
 
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -8,6 +9,17 @@ import { Button } from "../components/ui/button";
 import BeakerIcon from "../components/icons/BeakerIcon";
 
 const LoginForm: React.FC = () => {
+  const { login } = useAuth();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const email = (e.target as any).email.value;
+    const password = (e.target as any).password.value;
+
+    login(email, password);
+  };
+
+
   return (
     <main className="flex-1 flex items-center justify-center p-4 lg:p-6">
       <div className="w-full max-w-md rounded-lg bg-white p-6 shadow">
@@ -18,7 +30,7 @@ const LoginForm: React.FC = () => {
           </Link>
           <p className="mt-2 text-[#212121]">Your University Companion</p>
         </div>
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
             <Label htmlFor="email" className="text-[#212121]">
               Email
