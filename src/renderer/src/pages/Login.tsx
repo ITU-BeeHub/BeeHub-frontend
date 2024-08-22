@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from '../context/AuthContext';
-
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import { Checkbox } from "../components/ui/checkbox";
-import { Button } from "../components/ui/button";
+import { Checkbox } from "../components/ui/checkbox"; // Radix Checkbox bileşeni
 import BeakerIcon from "../components/icons/BeakerIcon";
+import { Label } from "../components/ui/label";
+import { Input } from "../components/ui/input";
+import { Button } from "../components/ui/button";
 
 const LoginForm: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,8 +19,8 @@ const LoginForm: React.FC = () => {
     const password = (e.target as any).password.value;
 
     try {
-      await login(email, password);
-      navigate("/beepicker"); // Login başarılıysa yönlendir
+      await login(email, password, rememberMe);
+      navigate("/");
     } catch (err) {
       setError("Login failed. Please check your credentials.");
     }
@@ -61,14 +61,19 @@ const LoginForm: React.FC = () => {
             />
           </div>
           <div className="flex items-center space-x-2">
-            <Checkbox id="terms" />
+            <Checkbox
+              id="rememberMe"
+              checked={rememberMe}
+              onCheckedChange={(checked) => setRememberMe(!!checked)}
+            />
             <label
-              htmlFor="terms"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              htmlFor="rememberMe"
+              className="text-sm font-medium leading-none"
             >
-              Accept terms and conditions
+              Remember me!
             </label>
           </div>
+
           <Button className="w-full h-10 bg-[#FDC003] text-[#0372CE] font-bold hover:bg-[#fdc003d9]">
             Sign In
           </Button>
