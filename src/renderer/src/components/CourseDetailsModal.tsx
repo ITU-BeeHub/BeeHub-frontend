@@ -1,13 +1,12 @@
 import React from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
-import { Course } from "../../../types/Course";
 import { Button } from "./ui/button";
 
 interface CourseDetailsModalProps {
     isOpen: boolean;
     closeModal: () => void;
-    course: Course | null;
+    course: any | null;  // Adjust to accept the transformed course type
 }
 
 const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
@@ -53,26 +52,32 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                                 </Dialog.Title>
                                 <div className="mt-2">
                                     <p className="text-sm text-gray-500">
-                                        CRN: {course.crn}
+                                        <strong>CRN:</strong> {course.crn}
                                     </p>
                                     <p className="text-sm text-gray-500">
-                                        Instructor: instructor
+                                        <strong>Day:</strong> {course.day}
                                     </p>
                                     <p className="text-sm text-gray-500">
-                                        Building: building
+                                        <strong>Time:</strong> {course.startTime} - {course.endTime}
                                     </p>
                                     <p className="text-sm text-gray-500">
-                                        Day: {course.day}
+                                        <strong>Instructor:</strong> {course.instructor}
                                     </p>
                                     <p className="text-sm text-gray-500">
-                                        Time: {course.startTime} - {course.endTime}
+                                        <strong>Building:</strong> {course.building}
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                        <strong>Room:</strong> {course.room}
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                        <strong>Enrolled/Capacity:</strong> {course.enrolled}/{course.capacity}
                                     </p>
                                 </div>
 
                                 <div className="mt-4">
                                     <Button
                                         type="button"
-                                        className=" inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                                        className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                                         onClick={closeModal}
                                     >
                                         Close

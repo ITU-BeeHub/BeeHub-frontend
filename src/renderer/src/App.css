@@ -68,3 +68,21 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Add this to your global CSS or inside the relevant component's CSS */
+::-webkit-scrollbar {
+  width: 8px;
+  /* Adjust this value to control the width */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #888;
+  /* Scrollbar color */
+  border-radius: 4px;
+  /* Rounded corners */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+  /* Color on hover */
+}

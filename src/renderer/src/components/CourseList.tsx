@@ -9,24 +9,25 @@ interface CourseListProps {
 }
 
 const CourseList: React.FC<CourseListProps> = ({ courses, onRemoveCourse }) => {
+
   return (
     <div className="mt-6 border rounded-lg">
       {courses.map((course) => (
         <div
-          key={course.crn} // id yerine crn kullanılabilir
+          key={course.CRN} // id yerine crn kullanılabilir
           className="grid grid-cols-[1fr_auto] items-center border-b p-4"
         >
           <div>
-            <p className="text-[#212121] font-medium">{course.name}</p>
+            <p className="text-[#212121] font-medium">{course.CourseTitle}</p>
             <p className="text-[#6B7280] text-sm">
-              {course.code} - {course.crn}
+              {course.CourseCode} - {course.CRN}
             </p>
           </div>
           <Button
             variant="ghost"
             size="icon"
             className="text-[#6B7280] hover:bg-transparent hover:text-[#212121]"
-            onClick={() => onRemoveCourse(course.crn)} // crn ile ders kaldırma
+            onClick={() => onRemoveCourse(course.CRN)} // crn ile ders kaldırma
           >
             <XIcon className="h-4 w-4" />
             <span className="sr-only">Remove</span>

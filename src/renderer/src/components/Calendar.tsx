@@ -1,13 +1,27 @@
 import React, { useState } from "react";
-import { Course } from "../../../types/Course";
 import CalendarDaysIcon from "./icons/CalendarDaysIcon";
 import { Button } from "./ui/button";
 import XIcon from "../components/icons/XIcon";
 import CourseDetailsModal from "./CourseDetailsModal"; // Modal bileşenini ekle
 
 interface CalendarProps {
-  courses: Course[];
+  courses: any[];  // This should be the original `Course` array before transformation
   onRemoveCourse: (crn: string) => void;
+}
+
+interface TransformedCourse {
+  id: string;
+  name: string;
+  code: string;
+  crn: string;
+  day: string;
+  startTime: string;
+  endTime: string;
+  building: string;
+  room: string;
+  instructor: string;
+  capacity: string;
+  enrolled: string;
 }
 
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
@@ -26,10 +40,12 @@ const hours = [
 ];
 
 const Calendar: React.FC<CalendarProps> = ({ courses, onRemoveCourse }) => {
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  console.log("Rendering Calendar");
+
+  const [selectedCourse, setSelectedCourse] = useState<TransformedCourse | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const openModal = (course: Course) => {
+  const openModal = (course: TransformedCourse) => {
     setSelectedCourse(course);
     setIsModalOpen(true);
   };
@@ -54,6 +70,50 @@ const Calendar: React.FC<CalendarProps> = ({ courses, onRemoveCourse }) => {
 
     return `${startRow} / ${endRow}`;
   };
+
+  const translateDay = (day: string): string => {
+    const dayMap: { [key: string]: string } = {
+      "Pazartesi": "Monday",
+      "Salı": "Tuesday",
+      "Çarşamba": "Wednesday",
+      "Perşembe": "Thursday",
+      "Cuma": "Friday",
+    };
+    return dayMap[day] || day;
+  };
+
+  const transformCourseData = (course: any): TransformedCourse[] => {
+    const days = course.Day.split(" "); // Split "Pazartesi Perşembe" into ["Pazartesi", "Perşembe"]
+    const times = course.Time.split(" "); // Split "0900/1129 0900/1129" into ["0900/1129", "0900/1129"]
+
+    const transformedCourses: TransformedCourse[] = [];
+
+    days.forEach((day: string, index: number) => {
+      const timeRange = times[index].split("/"); // Split "0900/1129" into ["0900", "1129"]
+
+      const startTime = `${timeRange[0].slice(0, 2)}:${timeRange[0].slice(2)}`; // "0900" -> "09:00"
+      const endTime = `${timeRange[1].slice(0, 2)}:${timeRange[1].slice(2)}`; // "1129" -> "11:29"
+
+      transformedCourses.push({
+        id: course.CRN, // Use CRN as the ID
+        name: course["Course Title"], // Use Course Title as the name
+        code: course["Course Code"], // Use Course Code as the code
+        crn: course.CRN, // Use CRN as is
+        day: translateDay(day), // Translate day from Turkish to English
+        startTime,
+        endTime,
+        building: course.Building,
+        room: course.Room,
+        instructor: course.Instructor,
+        capacity: course.Capacity,
+        enrolled: course.Enrolled,
+      });
+    });
+
+    return transformedCourses;
+  };
+
+  const transformedCourses = courses.flatMap(transformCourseData);
 
   return (
     <div className="mt-2 bg-white rounded-lg shadow h-auto w-full overflow-x-auto p-4">
@@ -92,7 +152,7 @@ const Calendar: React.FC<CalendarProps> = ({ courses, onRemoveCourse }) => {
                 ))}
               </div>
               <div className="events mx-2 absolute left-0 right-0 bottom-0 top-0 grid grid-flow-row border-l-2 border-dashed grid-rows-[repeat(24,_1fr)]">
-                {courses
+                {transformedCourses
                   .filter((course) => course.day === day)
                   .map((course) => {
                     const gridRow = calculateGridRow(
@@ -138,7 +198,7 @@ const Calendar: React.FC<CalendarProps> = ({ courses, onRemoveCourse }) => {
       <CourseDetailsModal
         isOpen={isModalOpen}
         closeModal={closeModal}
-        course={selectedCourse}
+        course={selectedCourse as any} // Type assertion here
       />
     </div>
   );

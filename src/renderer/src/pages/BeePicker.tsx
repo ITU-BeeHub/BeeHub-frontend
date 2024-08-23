@@ -11,12 +11,13 @@ import { Course } from "../../../types/Course";
 import { useAuth } from "../context/AuthContext";
 
 const BeePicker: React.FC = (): React.ReactNode => {
+
   const handleAddCourse = (course: Course) => {
     setSelectedCourses([...selectedCourses, course]);
   };
 
   const handleRemoveCourse = (crn: string) => {
-    setSelectedCourses(selectedCourses.filter((course) => course.crn !== crn));
+    setSelectedCourses(selectedCourses.filter((course) => course.CRN !== crn));
   };
 
   const [selectedCourses, setSelectedCourses] = useState<Course[]>(() => {
