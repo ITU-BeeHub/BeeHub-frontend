@@ -38,21 +38,15 @@ function createWindow(): void {
 }
 // Backend'i başlatmak için bir fonksiyon oluşturun
 function startBackend() {
-  const backendPath = 'C:/Users/Dervis/Desktop/github.com/ITU-BeeHub/BeeHub-backend/main.exe'; // Backend'in yolu
-  backendProcess = execFile(backendPath, (err, stdout, stderr) => {
-    if (err) {
-      console.error(`Backend başlatma hatası: ${err.message}`);
-      return;
-    }
-    console.log(`Backend çıktı:\n${stdout}`);
-    if (stderr) {
-      console.error(`Backend hata çıktı:\n${stderr}`);
-    }
-  });
-
-  backendProcess.on('close', (code: number) => {
-    console.log(`Backend süreci ${code} koduyla kapandı`);
-  });
+  /*
+   *  Backend artık "npm run dev" veya "npm run start"
+   *  komuduyla beraber çalışır.
+   *  Yalnız frontend ve backend reposunun aynı klasör içerisinde olması gerekir.
+   *  Mesela: Beehub|
+   *                |- BeeHub-Frontend
+   *                |- BeeHub-Backend
+   * Fonksiyon, önceki kod bozulmasın diye duruyor
+  */
 }
 
 // This method will be called when Electron has finished
