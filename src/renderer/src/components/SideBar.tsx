@@ -56,7 +56,7 @@ export default function Sidebar() {
                   isCollapsed ? "opacity-0 scale-0" : "opacity-100 scale-100"
                 }`}
               >
-                BeeHub
+                <b>BeeHub</b>
               </span>
             </div>
           </nav>
