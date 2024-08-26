@@ -7,6 +7,8 @@ import Login from "./pages/Login";
 import Beepicker from "./pages/BeePicker";
 import VersionError from "./pages/VersionError";
 import { VersionProvider, useVersion } from "./context/VersionContext";
+import Settings from "./pages/Settings";
+import { SettingsProvider } from "./context/SettingsContext";
 
 function AppContent() {
   const { isVersionValid, loading } = useVersion();
@@ -32,6 +34,7 @@ function AppContent() {
         <Route path="/login" element={<Login />} />
         <Route path="/beepicker" element={<Beepicker />} />
         <Route path="/version-error" element={<VersionError />} />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
     </Layout>
   );
@@ -39,13 +42,15 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <VersionProvider>
-          <AppContent />
-        </VersionProvider>
-      </Router>
-    </AuthProvider>
+    <Router>
+      <VersionProvider>
+        <SettingsProvider>
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
+        </SettingsProvider>
+      </VersionProvider>
+    </Router>
   );
 }
 
