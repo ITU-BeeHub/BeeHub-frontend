@@ -11,19 +11,37 @@ import Settings from "./pages/Settings";
 import { SettingsProvider } from "./context/SettingsContext";
 import InternetConnectionChecker from "./components/InternetConnectionStartup";
 import InternetConnectionToast from "./components/InternetConnectionToast";
+import LoadingAnimation from "./components/LoadingAnimation";
 
 function AppContent() {
-  const { isVersionValid, loading } = useVersion();
+  const { isVersionValid, loading, backendAvailable } = useVersion();
 
   if (loading) {
-    return <div>Loading...</div>; // You can customize this loading state with your own design.
+    return (
+      <LoadingAnimation
+        mainText="Loading..."
+        subText="Fetching data, please wait."
+        animationType="spin"
+        spinDuration={3} // Optional: defaults to 2 seconds
+      />
+    );
+  }
+
+  if (!backendAvailable) {
+    return (
+      <LoadingAnimation
+        mainText="Connecting to BeeHub..."
+        subText="Attempting to establish a connection with the server."
+        animationType="bounce"
+        spinDuration={1.5} // Optional: duration for bounce effect
+      />
+    );
   }
 
   if (!isVersionValid) {
     return (
       <Routes>
         <Route path="/version-error" element={<VersionError />} />
-        {/* Only VersionError is accessible if the version is not valid */}
       </Routes>
     );
   }
