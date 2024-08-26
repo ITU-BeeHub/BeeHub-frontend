@@ -9,6 +9,8 @@ import VersionError from "./pages/VersionError";
 import { VersionProvider, useVersion } from "./context/VersionContext";
 import Settings from "./pages/Settings";
 import { SettingsProvider } from "./context/SettingsContext";
+import InternetConnectionChecker from "./components/InternetConnectionStartup";
+import InternetConnectionToast from "./components/InternetConnectionToast";
 
 function AppContent() {
   const { isVersionValid, loading } = useVersion();
@@ -43,13 +45,17 @@ function AppContent() {
 function App() {
   return (
     <Router>
-      <VersionProvider>
-        <SettingsProvider>
-          <AuthProvider>
-            <AppContent />
-          </AuthProvider>
-        </SettingsProvider>
-      </VersionProvider>
+      <InternetConnectionChecker>
+        <VersionProvider>
+          <SettingsProvider>
+            <AuthProvider>
+              <InternetConnectionToast>
+                <AppContent />
+              </InternetConnectionToast>
+            </AuthProvider>
+          </SettingsProvider>
+        </VersionProvider>
+      </InternetConnectionChecker>
     </Router>
   );
 }
