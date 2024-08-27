@@ -8,9 +8,11 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src')
     }
   },
-  
   plugins: [react()],
   css: {
     postcss: './postcss.config.js',
   },
-})
+  build: {
+    sourcemap: true, // Disable sourcemaps
+  }
+});

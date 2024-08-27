@@ -8,6 +8,8 @@
   ],
   "compilerOptions": {
     "composite": true,
+    "esModuleInterop": true,
+    "sourceMap": true,
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {

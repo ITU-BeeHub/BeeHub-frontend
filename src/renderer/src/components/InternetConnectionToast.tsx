@@ -8,7 +8,7 @@ const InternetConnectionToast: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const checkInternetConnection = async () => {
     try {
-      const response = await fetch("https://www.google.com", {
+      await fetch("https://www.google.com", {
         method: "HEAD",
         mode: "no-cors",
         cache: "no-store",

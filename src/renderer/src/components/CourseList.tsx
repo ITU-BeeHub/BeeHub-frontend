@@ -18,9 +18,9 @@ const CourseList: React.FC<CourseListProps> = ({ courses, onRemoveCourse }) => {
           className="grid grid-cols-[1fr_auto] items-center border-b p-4"
         >
           <div>
-            <p className="text-[#212121] font-medium">{course.CourseTitle}</p>
+            <p className="text-[#212121] font-medium">{course["Course Title"]}</p>
             <p className="text-[#6B7280] text-sm">
-              {course.CourseCode} - {course.CRN}
+              {course["Course Code"]} - {course.CRN}
             </p>
           </div>
           <Button

@@ -95,7 +95,7 @@ const BeePicker: React.FC = (): React.ReactNode => {
 
   const getCourseName = (crn: string) => {
     const course = selectedCourses.find(course => course.CRN === crn);
-    return course ? course.name : "Unknown Course";
+    return course ? course["Course Title"] : "Unknown Course";
   };
 
   const renderResponseItem = (crn: string, result: any) => (

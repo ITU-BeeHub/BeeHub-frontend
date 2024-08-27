@@ -6,9 +6,11 @@
   ],
   "compilerOptions": {
     "baseUrl": "./src",
+    "esModuleInterop": true,
+    "sourceMap": true,
     "paths": {
       "@/components/*": ["components/*"],
       "@/lib/*": ["lib/*"]
-    }
+    },
   }
 }
