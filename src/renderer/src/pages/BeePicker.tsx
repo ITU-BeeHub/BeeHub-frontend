@@ -47,7 +47,7 @@ const BeePicker: React.FC = (): React.ReactNode => {
   };
 
   const handleRemoveCourse = (crn: string) => {
-    setSelectedCourses(selectedCourses.filter((course) => course.CRN !== crn));
+    setSelectedCourses(selectedCourses.filter((course) => course.crn !== crn));
   };
 
   const handleSubmit = async () => {
@@ -56,7 +56,7 @@ const BeePicker: React.FC = (): React.ReactNode => {
 
     try {
       // Extracting course codes
-      const courseCodes = selectedCourses.map(course => course.CRN);
+      const courseCodes = selectedCourses.map(course => course.crn);
 
       // Sending the request to the backend
       const response = await fetch('http://localhost:8080/beePicker/pick', {
@@ -94,8 +94,8 @@ const BeePicker: React.FC = (): React.ReactNode => {
   };
 
   const getCourseName = (crn: string) => {
-    const course = selectedCourses.find(course => course.CRN === crn);
-    return course ? course["Course Title"] : "Unknown Course";
+    const course = selectedCourses.find(course => course.crn === crn);
+    return course ? course["dersAdi"] : "Unknown Course";
   };
 
   const renderResponseItem = (crn: string, result: any) => (
@@ -119,7 +119,7 @@ const BeePicker: React.FC = (): React.ReactNode => {
           courses={selectedCourses}
           onRemoveCourse={handleRemoveCourse}
         />
-        <Button 
+        <Button
           className="mt-6 w-full bg-[#FDC003] text-[#0372CE] font-bold hover:bg-[#fdc003d9] flex justify-center items-center"
           onClick={handleSubmit}
           disabled={isLoading} // Disable the button when loading

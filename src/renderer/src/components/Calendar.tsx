@@ -3,6 +3,7 @@ import CalendarDaysIcon from "./icons/CalendarDaysIcon";
 import { Button } from "./ui/button";
 import XIcon from "../components/icons/XIcon";
 import CourseDetailsModal from "./CourseDetailsModal"; // Modal bileşenini ekle
+import { Course } from "../../../types/Course";
 
 interface CalendarProps {
   courses: any[];  // This should be the original `Course` array before transformation
@@ -82,9 +83,9 @@ const Calendar: React.FC<CalendarProps> = ({ courses, onRemoveCourse }) => {
     return dayMap[day] || day;
   };
 
-  const transformCourseData = (course: any): TransformedCourse[] => {
-    const days = course.Day.split(" "); // Split "Pazartesi Perşembe" into ["Pazartesi", "Perşembe"]
-    const times = course.Time.split(" "); // Split "0900/1129 0900/1129" into ["0900/1129", "0900/1129"]
+  const transformCourseData = (course: Course): TransformedCourse[] => {
+    const days = course.gunAdiEN.split(" "); // Split "Pazartesi Perşembe" into ["Pazartesi", "Perşembe"]
+    const times = course.baslangicSaati.split(" "); // Split "0900/1129 0900/1129" into ["0900/1129", "0900/1129"]
 
     const transformedCourses: TransformedCourse[] = [];
 
@@ -95,18 +96,18 @@ const Calendar: React.FC<CalendarProps> = ({ courses, onRemoveCourse }) => {
       const endTime = `${timeRange[1].slice(0, 2)}:${timeRange[1].slice(2)}`; // "1129" -> "11:29"
 
       transformedCourses.push({
-        id: course.CRN, // Use CRN as the ID
-        name: course["Course Title"], // Use Course Title as the name
-        code: course["Course Code"], // Use Course Code as the code
-        crn: course.CRN, // Use CRN as is
+        id: course.crn, // Use CRN as the ID
+        name: course["dersAdi"], // Use Course Title as the name
+        code: course["dersKodu"], // Use Course Code as the code
+        crn: course.crn, // Use CRN as is
         day: translateDay(day), // Translate day from Turkish to English
         startTime,
         endTime,
-        building: course.Building,
-        room: course.Room,
-        instructor: course.Instructor,
-        capacity: course.Capacity,
-        enrolled: course.Enrolled,
+        building: course.binaKodu.substring(0, 3),
+        room: course.mekanAdi,
+        instructor: course.adSoyad,
+        capacity: course.kontenjan,
+        enrolled: course.rezervasyon,
       });
     });
 

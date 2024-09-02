@@ -36,7 +36,7 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({ onAddCourse }) => {
       });
   }, []);
 
-  // Handle keyboard navigation for course codes
+  // Handle keyboard navigation for dersKodus
   const handleKeyDown = (event: KeyboardEvent) => {
     if (isCodePopoverOpen && courseCodeRef.current) {
       const char = event.key.toUpperCase();
@@ -62,36 +62,36 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({ onAddCourse }) => {
     };
   }, [isCodePopoverOpen]);
 
-  // Filtering by Course Group (first 3 characters of Course Code)
+  // Filtering by Course Group (first 3 characters of dersKodu)
   const filteredCoursesByGroup = courses.filter(
-    (course) => course["Course Code"] && course["Course Code"].startsWith(selectedCourseGroup || "")
+    (course) => course["dersKodu"] && course["dersKodu"].startsWith(selectedCourseGroup || "")
   );
 
   // Extracting unique Course Groups
   const filteredGroups = Array.from(
     new Set(
       courses
-        .filter(course => course["Course Code"])
-        .map((course) => course["Course Code"].substring(0, 3))
+        .filter(course => course["dersKodu"])
+        .map((course) => course["dersKodu"].substring(0, 3))
     )
   ).filter(group => group !== undefined).sort();
 
-  // Filtering by specific Course Code within the selected group
+  // Filtering by specific dersKodu within the selected group
   const filteredCoursesByCode = filteredCoursesByGroup.filter(
-    (course) => course["Course Code"] === selectedCourseCode
+    (course) => course["dersKodu"] === selectedCourseCode
   ).sort((a, b) => {
-    return a.CRN.localeCompare(b.CRN);
+    return a.crn.localeCompare(b.crn);
   });
 
   const filteredUniqueCourses = Array.from(
-    new Set(filteredCoursesByGroup.map((course) => course["Course Code"]))
+    new Set(filteredCoursesByGroup.map((course) => course["dersKodu"]))
   ).map((uniqueCode) => {
-    return filteredCoursesByGroup.find(course => course["Course Code"] === uniqueCode);
+    return filteredCoursesByGroup.find(course => course["dersKodu"] === uniqueCode);
   }).filter(course => course !== undefined) // Filter out undefined results
     .sort((a, b) => {
       if (a && b) { // Ensure both a and b are not undefined
-        if (a["Course Code"] < b["Course Code"]) return -1;
-        if (a["Course Code"] > b["Course Code"]) return 1;
+        if (a["dersKodu"] < b["dersKodu"]) return -1;
+        if (a["dersKodu"] > b["dersKodu"]) return 1;
       }
       return 0; // Treat undefined cases as equal
     });
@@ -106,7 +106,7 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({ onAddCourse }) => {
   const handleSelectCourseCode = (code: string) => {
     setSelectedCourseCode(code);
     setSelectedCRN(null); // Yeni code seçildiğinde CRN sıfırlanmalı
-    setIsCodePopoverOpen(false); // Course Code popover'ını kapat
+    setIsCodePopoverOpen(false); // dersKodu popover'ını kapat
   };
 
   const handleSelectCRN = (crn: string) => {
@@ -117,8 +117,8 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({ onAddCourse }) => {
   const handleAddCourse = () => {
     const selectedCourse = courses.find(
       (course) =>
-        course["Course Code"] === selectedCourseCode &&
-        course.CRN === selectedCRN
+        course["dersKodu"] === selectedCourseCode &&
+        course.crn === selectedCRN
     );
     if (selectedCourse) {
       onAddCourse(selectedCourse);
@@ -161,7 +161,7 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({ onAddCourse }) => {
           </PopoverContent>
         </Popover>
 
-        {/* Course Code */}
+        {/* dersKodu */}
         <Popover open={isCodePopoverOpen} onOpenChange={setIsCodePopoverOpen}>
           <PopoverTrigger asChild>
             <Button
@@ -178,10 +178,10 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({ onAddCourse }) => {
                 <Button
                   variant="ghost"
                   className="justify-start w-full"
-                  key={course && course["Course Code"] && course["Course Title"] ? course["Course Code"] + course["Course Title"] : ""}
-                  onClick={() => handleSelectCourseCode(course && course["Course Code"] ? course["Course Code"] : "")}
+                  key={course && course["dersKodu"] && course["dersAdi"] ? course["dersKodu"] + course["dersAdi"] : ""}
+                  onClick={() => handleSelectCourseCode(course && course["dersKodu"] ? course["dersKodu"] : "")}
                 >
-                  {course && course["Course Code"] ? `${course["Course Code"]} - ${course["Course Title"]}` : ""}
+                  {course && course["dersKodu"] ? `${course["dersKodu"]} - ${course["dersAdi"]}` : ""}
                 </Button>
               ))}
             </div>
@@ -205,10 +205,10 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({ onAddCourse }) => {
                 <Button
                   variant="ghost"
                   className="justify-start w-full"
-                  key={course.CRN}
-                  onClick={() => handleSelectCRN(course.CRN)}
+                  key={course.crn}
+                  onClick={() => handleSelectCRN(course.crn)}
                 >
-                  {course.CRN}
+                  {course.crn}
                 </Button>
               ))}
             </div>
