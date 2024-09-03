@@ -1,7 +1,7 @@
 {
   "name": "bee",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "main": "./out/main/index.js",
   "scripts": {
@@ -67,5 +67,50 @@
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.0",
     "vite": "^5.4.0"
+  },
+  "build": {
+    "appId": "com.yourdomain.beehub",
+    "productName": "BeeHub",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "build/**/*",
+      "node_modules/**/*",
+      "out/main/**/*",
+      "out/renderer/**/*",
+      "out/preload/**/*",
+      "index.html",
+      "package.json"
+    ],
+    "extraFiles": [
+      {
+        "from": "../BeeHub-backend/beehub.exe",
+        "to": "backend/beehub.exe",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../BeeHub-backend/beehub-mac-arm",
+        "to": "backend/beehub-mac-arm",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "path/to/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "path/to/icon.icns"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }
