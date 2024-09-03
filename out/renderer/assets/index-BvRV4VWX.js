@@ -24959,26 +24959,26 @@ const CourseSelector = ({ onAddCourse }) => {
     };
   }, [isCodePopoverOpen]);
   const filteredCoursesByGroup = courses.filter(
-    (course) => course["Course Code"] && course["Course Code"].startsWith(selectedCourseGroup || "")
+    (course) => course["dersKodu"] && course["dersKodu"].startsWith(selectedCourseGroup || "")
   );
   const filteredGroups = Array.from(
     new Set(
-      courses.filter((course) => course["Course Code"]).map((course) => course["Course Code"].substring(0, 3))
+      courses.filter((course) => course["dersKodu"]).map((course) => course["dersKodu"].substring(0, 3))
     )
   ).filter((group) => group !== void 0).sort();
   const filteredCoursesByCode = filteredCoursesByGroup.filter(
-    (course) => course["Course Code"] === selectedCourseCode
+    (course) => course["dersKodu"] === selectedCourseCode
   ).sort((a3, b2) => {
-    return a3.CRN.localeCompare(b2.CRN);
+    return a3.crn.localeCompare(b2.crn);
   });
   const filteredUniqueCourses = Array.from(
-    new Set(filteredCoursesByGroup.map((course) => course["Course Code"]))
+    new Set(filteredCoursesByGroup.map((course) => course["dersKodu"]))
   ).map((uniqueCode) => {
-    return filteredCoursesByGroup.find((course) => course["Course Code"] === uniqueCode);
+    return filteredCoursesByGroup.find((course) => course["dersKodu"] === uniqueCode);
   }).filter((course) => course !== void 0).sort((a3, b2) => {
     if (a3 && b2) {
-      if (a3["Course Code"] < b2["Course Code"]) return -1;
-      if (a3["Course Code"] > b2["Course Code"]) return 1;
+      if (a3["dersKodu"] < b2["dersKodu"]) return -1;
+      if (a3["dersKodu"] > b2["dersKodu"]) return 1;
     }
     return 0;
   });
@@ -24999,7 +24999,7 @@ const CourseSelector = ({ onAddCourse }) => {
   };
   const handleAddCourse = () => {
     const selectedCourse = courses.find(
-      (course) => course["Course Code"] === selectedCourseCode && course.CRN === selectedCRN
+      (course) => course["dersKodu"] === selectedCourseCode && course.crn === selectedCRN
     );
     if (selectedCourse) {
       onAddCourse(selectedCourse);
@@ -25045,10 +25045,10 @@ const CourseSelector = ({ onAddCourse }) => {
           {
             variant: "ghost",
             className: "justify-start w-full",
-            onClick: () => handleSelectCourseCode(course && course["Course Code"] ? course["Course Code"] : ""),
-            children: course && course["Course Code"] ? `${course["Course Code"]} - ${course["Course Title"]}` : ""
+            onClick: () => handleSelectCourseCode(course && course["dersKodu"] ? course["dersKodu"] : ""),
+            children: course && course["dersKodu"] ? `${course["dersKodu"]} - ${course["dersAdi"]}` : ""
           },
-          course && course["Course Code"] && course["Course Title"] ? course["Course Code"] + course["Course Title"] : ""
+          course && course["dersKodu"] && course["dersAdi"] ? course["dersKodu"] + course["dersAdi"] : ""
         )) }) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Popover, { open: isCRNPopoverOpen, onOpenChange: setIsCRNPopoverOpen, children: [
@@ -25066,10 +25066,10 @@ const CourseSelector = ({ onAddCourse }) => {
           {
             variant: "ghost",
             className: "justify-start w-full",
-            onClick: () => handleSelectCRN(course.CRN),
-            children: course.CRN
+            onClick: () => handleSelectCRN(course.crn),
+            children: course.crn
           },
-          course.CRN
+          course.crn
         )) }) })
       ] })
     ] }),
@@ -25112,11 +25112,11 @@ const CourseList = ({ courses, onRemoveCourse }) => {
       className: "grid grid-cols-[1fr_auto] items-center border-b p-4",
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[#212121] font-medium", children: course["Course Title"] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[#212121] font-medium", children: course["dersAdi"] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-[#6B7280] text-sm", children: [
-            course["Course Code"],
+            course["dersKodu"],
             " - ",
-            course.CRN
+            course.crn
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -25125,7 +25125,7 @@ const CourseList = ({ courses, onRemoveCourse }) => {
             variant: "ghost",
             size: "icon",
             className: "text-[#6B7280] hover:bg-transparent hover:text-[#212121]",
-            onClick: () => onRemoveCourse(course.CRN),
+            onClick: () => onRemoveCourse(course.crn),
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(XIcon, { className: "h-4 w-4" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: "Remove" })
@@ -25134,7 +25134,7 @@ const CourseList = ({ courses, onRemoveCourse }) => {
         )
       ]
     },
-    course.CRN
+    course.crn
   )) });
 };
 function CalendarDaysIcon(props) {
@@ -26437,31 +26437,31 @@ const Calendar = ({ courses, onRemoveCourse }) => {
     return dayMap[day] || day;
   };
   const transformCourseData = (course) => {
-    const days = course.Day.split(" ");
-    const times = course.Time.split(" ");
+    const days = course.gunAdiEN.split(" ");
+    const times = course.baslangicSaati.split(" ");
     const transformedCourses2 = [];
     days.forEach((day, index2) => {
       const timeRange = times[index2].split("/");
       const startTime = `${timeRange[0].slice(0, 2)}:${timeRange[0].slice(2)}`;
       const endTime = `${timeRange[1].slice(0, 2)}:${timeRange[1].slice(2)}`;
       transformedCourses2.push({
-        id: course.CRN,
+        id: course.crn,
         // Use CRN as the ID
-        name: course["Course Title"],
+        name: course["dersAdi"],
         // Use Course Title as the name
-        code: course["Course Code"],
+        code: course["dersKodu"],
         // Use Course Code as the code
-        crn: course.CRN,
+        crn: course.crn,
         // Use CRN as is
         day: translateDay(day),
         // Translate day from Turkish to English
         startTime,
         endTime,
-        building: course.Building,
-        room: course.Room,
-        instructor: course.Instructor,
-        capacity: course.Capacity,
-        enrolled: course.Enrolled
+        building: course.binaKodu.substring(0, 3),
+        room: course.mekanAdi,
+        instructor: course.adSoyad,
+        capacity: course.kontenjan,
+        enrolled: course.rezervasyon
       });
     });
     return transformedCourses2;
@@ -26582,13 +26582,13 @@ const BeePicker = () => {
     setSelectedCourses([...selectedCourses, course]);
   };
   const handleRemoveCourse = (crn) => {
-    setSelectedCourses(selectedCourses.filter((course) => course.CRN !== crn));
+    setSelectedCourses(selectedCourses.filter((course) => course.crn !== crn));
   };
   const handleSubmit = async () => {
     setIsLoading(true);
     setResponseData(null);
     try {
-      const courseCodes = selectedCourses.map((course) => course.CRN);
+      const courseCodes = selectedCourses.map((course) => course.crn);
       const response = await fetch("http://localhost:8080/beePicker/pick", {
         method: "POST",
         headers: {
@@ -26622,8 +26622,8 @@ const BeePicker = () => {
     }
   };
   const getCourseName = (crn) => {
-    const course = selectedCourses.find((course2) => course2.CRN === crn);
-    return course ? course["Course Title"] : "Unknown Course";
+    const course = selectedCourses.find((course2) => course2.crn === crn);
+    return course ? course["dersAdi"] : "Unknown Course";
   };
   const renderResponseItem = (crn, result) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "border-b border-gray-300 py-2", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("h4", { className: "font-semibold text-blue-600", children: [
