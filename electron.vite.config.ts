@@ -4,17 +4,27 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin()]
+    plugins: [externalizeDepsPlugin()],
+    build: {
+      outDir: 'out/main',
+      rollupOptions: {
+        external: ['path', 'fs'], // Ensure necessary Node.js modules are externalized
+      },
+    },
   },
   preload: {
-    plugins: [externalizeDepsPlugin()]
+    plugins: [externalizeDepsPlugin()],
+    build: {
+      outDir: 'out/preload',
+    },
   },
   renderer: {
     resolve: {
       alias: {
-        '@renderer': resolve('src/renderer/src')
-      }
+        '@renderer': resolve('src/renderer'),
+      },
     },
-    plugins: [react()]
-  }
-})
+    base: './', // This ensures the assets are loaded correctly
+    plugins: [react()],
+  },
+});

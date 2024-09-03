@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import Layout from "./components/Layout";
 import { AuthProvider } from "./context/AuthContext";
@@ -33,7 +33,7 @@ function AppContent() {
         mainText="Connecting to BeeHub..."
         subText="Attempting to establish a connection with the server."
         animationType="bounce"
-        spinDuration={1.5} // Optional: duration for bounce effect
+        spinDuration={1} // Optional: duration for bounce effect
       />
     );
   }
