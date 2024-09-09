@@ -22,7 +22,7 @@ function AppContent() {
         mainText="Loading..."
         subText="Fetching data, please wait."
         animationType="spin"
-        spinDuration={3} // Optional: defaults to 2 seconds
+        spinDuration={2} // Optional: defaults to 2 seconds
       />
     );
   }

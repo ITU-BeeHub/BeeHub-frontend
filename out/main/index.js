@@ -8,6 +8,8 @@ const __filename = import.meta.filename;
 const __dirname = import.meta.dirname;
 const require2 = __cjs_mod__.createRequire(import.meta.url);
 let backendProcess;
+const logFile = join(app.getPath("userData"), "backend_log.txt");
+const logStream = fs.createWriteStream(logFile, { flags: "a" });
 function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 900,
@@ -36,29 +38,56 @@ function startBackend() {
   const resourcesPath = process.resourcesPath;
   process.stdout.write(`Resources path: ${resourcesPath}
 `);
+  logStream.write(`Resources path: ${resourcesPath}
+`);
   const backendPath = join(
     resourcesPath,
     "backend",
     process.platform === "win32" ? "beehub.exe" : "beehub-mac-arm"
   );
-  process.stdout.write(`Backend path: ${backendPath}
+  console.log(`Backend path: ${backendPath}`);
+  logStream.write(`Backend path: ${backendPath}
 `);
   if (!fs.existsSync(backendPath)) {
-    process.stderr.write(`Backend executable not found at ${backendPath}
+    const errorMsg = `Backend executable not found at ${backendPath}`;
+    console.error(errorMsg);
+    process.stderr.write(`${errorMsg}
+`);
+    logStream.write(`${errorMsg}
 `);
     return;
   }
-  backendProcess = spawn(backendPath, [], { detached: true });
+  backendProcess = spawn(backendPath, [], { detached: false });
+  backendProcess.on("error", (error) => {
+    const errorMsg = `Failed to start backend: ${error.message}`;
+    console.error(errorMsg);
+    process.stderr.write(`${errorMsg}
+`);
+    logStream.write(`${errorMsg}
+`);
+  });
   backendProcess.stdout.on("data", (data) => {
-    process.stdout.write(`Backend: ${data.toString()}
+    const msg = `Backend stdout: ${data.toString()}`;
+    console.log(msg);
+    process.stdout.write(`${msg}
+`);
+    logStream.write(`${msg}
 `);
   });
   backendProcess.stderr.on("data", (data) => {
-    process.stderr.write(`Backend error: ${data.toString()}
+    const errorMsg = `Backend stderr: ${data.toString()}`;
+    console.error(errorMsg);
+    process.stderr.write(`${errorMsg}
+`);
+    logStream.write(`${errorMsg}
 `);
   });
   backendProcess.on("close", (code) => {
-    process.stdout.write(`Backend process exited with code ${code}
+    const closeMsg = `Backend process exited with code ${code}`;
+    console.log(closeMsg);
+    process.stdout.write(`${closeMsg}
+`);
+    logStream.write(`${closeMsg}
 `);
   });
 }
@@ -79,6 +108,8 @@ app.on("window-all-closed", () => {
     app.quit();
     if (backendProcess) {
       backendProcess.kill();
+      logStream.write(`Backend process killed on window close.
+`);
     }
   }
 });

@@ -6,6 +6,10 @@ import fs from 'fs';
 
 let backendProcess: any;
 
+// Backend loglarını dosyaya yazmak için bir yol ekliyoruz
+const logFile = join(app.getPath('userData'), 'backend_log.txt');
+const logStream = fs.createWriteStream(logFile, { flags: 'a' });
+
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
     width: 900,
@@ -38,31 +42,57 @@ function createWindow(): void {
 function startBackend() {
   const resourcesPath = process.resourcesPath;
   process.stdout.write(`Resources path: ${resourcesPath}\n`);
+  logStream.write(`Resources path: ${resourcesPath}\n`);
 
   const backendPath = join(
     resourcesPath,
     'backend',
     process.platform === 'win32' ? 'beehub.exe' : 'beehub-mac-arm'
   );
-  process.stdout.write(`Backend path: ${backendPath}\n`);
+  console.log(`Backend path: ${backendPath}`);
+  logStream.write(`Backend path: ${backendPath}\n`);
 
   if (!fs.existsSync(backendPath)) {
-    process.stderr.write(`Backend executable not found at ${backendPath}\n`);
+    const errorMsg = `Backend executable not found at ${backendPath}`;
+    console.error(errorMsg);
+    process.stderr.write(`${errorMsg}\n`);
+    logStream.write(`${errorMsg}\n`);
     return;
   }
 
-  backendProcess = spawn(backendPath, [], { detached: true });
+  // Backend sürecini başlatma
+  backendProcess = spawn(backendPath, [], { detached: false });
 
+  // Başlangıç hatalarını yakala
+  backendProcess.on('error', (error: Error) => {
+    const errorMsg = `Failed to start backend: ${error.message}`;
+    console.error(errorMsg);
+    process.stderr.write(`${errorMsg}\n`);
+    logStream.write(`${errorMsg}\n`);
+  });
+
+  // Backend'den gelen çıktı logları
   backendProcess.stdout.on('data', (data: Buffer) => {
-    process.stdout.write(`Backend: ${data.toString()}\n`);
+    const msg = `Backend stdout: ${data.toString()}`;
+    console.log(msg);
+    process.stdout.write(`${msg}\n`);
+    logStream.write(`${msg}\n`);
   });
 
+  // Backend'den gelen hata logları
   backendProcess.stderr.on('data', (data: Buffer) => {
-    process.stderr.write(`Backend error: ${data.toString()}\n`);
+    const errorMsg = `Backend stderr: ${data.toString()}`;
+    console.error(errorMsg);
+    process.stderr.write(`${errorMsg}\n`);
+    logStream.write(`${errorMsg}\n`);
   });
 
+  // Backend kapanma logları
   backendProcess.on('close', (code: number) => {
-    process.stdout.write(`Backend process exited with code ${code}\n`);
+    const closeMsg = `Backend process exited with code ${code}`;
+    console.log(closeMsg);
+    process.stdout.write(`${closeMsg}\n`);
+    logStream.write(`${closeMsg}\n`);
   });
 }
 
@@ -75,8 +105,8 @@ app.whenReady().then(() => {
 
   ipcMain.on('ping', () => console.log('pong'));
 
-  startBackend();
-  createWindow();
+  startBackend(); // Backend'i başlatıyoruz
+  createWindow(); // Ana pencereyi oluşturuyoruz
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -88,6 +118,7 @@ app.on('window-all-closed', () => {
     app.quit();
     if (backendProcess) {
       backendProcess.kill(); // Backend'in kapanmasını sağla
+      logStream.write(`Backend process killed on window close.\n`);
     }
   }
 });

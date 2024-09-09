@@ -2,6 +2,8 @@
   "name": "bee",
   "private": true,
   "version": "1.0.0",
+  "description": "BeeHub",
+  "author": "BeeHub",
   "type": "module",
   "main": "./out/main/index.js",
   "scripts": {
@@ -38,6 +40,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "crypto-js": "^4.2.0",
+    "electron-updater": "^6.3.4",
     "lucide-react": "^0.427.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -83,7 +86,7 @@
       "index.html",
       "package.json"
     ],
-    "extraFiles": [
+    "extraResources": [
       {
         "from": "../BeeHub-backend/beehub.exe",
         "to": "backend/beehub.exe",

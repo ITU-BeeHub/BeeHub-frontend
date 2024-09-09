@@ -27237,7 +27237,7 @@ function AppContent() {
         mainText: "Loading...",
         subText: "Fetching data, please wait.",
         animationType: "spin",
-        spinDuration: 3
+        spinDuration: 2
       }
     );
   }
