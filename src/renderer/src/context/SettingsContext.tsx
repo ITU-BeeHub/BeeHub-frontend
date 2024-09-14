@@ -1,3 +1,4 @@
+// src/context/SettingsContext.tsx
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 interface Setting {
@@ -21,6 +22,7 @@ export const useSettings = () => {
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [settings, setSettings] = useState<{ [key: string]: Setting }>({
+    rememberMe: { value: false }, 
     setting1: { value: false },
     setting2: { value: 10 },
     setting3: { value: "Default Text" },
