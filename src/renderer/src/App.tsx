@@ -1,17 +1,29 @@
+{/* REACT */}
 import { HashRouter as Router, Route, Routes } from "react-router-dom";
-import Home from "./pages/Home";
-import Layout from "./components/Layout";
+
+{/* CONTEXT */}
 import { AuthProvider } from "./context/AuthContext";
-import Profile from "./pages/Profile";
-import Login from "./pages/Login";
-import Beepicker from "./pages/BeePicker";
-import VersionError from "./pages/VersionError";
 import { VersionProvider, useVersion } from "./context/VersionContext";
-import Settings from "./pages/Settings";
 import { SettingsProvider } from "./context/SettingsContext";
+
+{/* COMPONENTS */}
 import InternetConnectionChecker from "./components/InternetConnectionStartup";
 import InternetConnectionToast from "./components/InternetConnectionToast";
 import LoadingAnimation from "./components/LoadingAnimation";
+import Layout from "./components/Layout";
+
+{/* PAGES */}
+import Home from "./pages/Home";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import Contact from "./pages/Contact";
+import Profile from "./pages/Profile";
+import Login from "./pages/Login";
+import Beepicker from "./pages/BeePicker";
+import Settings from "./pages/Settings";
+import VersionError from "./pages/VersionError";
+
+
 
 function AppContent() {
   const { isVersionValid, loading, backendAvailable } = useVersion();
@@ -55,6 +67,9 @@ function AppContent() {
         <Route path="/beepicker" element={<Beepicker />} />
         <Route path="/version-error" element={<VersionError />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/contact" element={<Contact />} />
       </Routes>
     </Layout>
   );
