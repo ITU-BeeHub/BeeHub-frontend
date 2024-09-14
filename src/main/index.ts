@@ -12,9 +12,11 @@ const logStream = fs.createWriteStream(logFile, { flags: 'a' });
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
-    show: false,
+    width: 900, // Default width
+    height: 670, // Default height
+    minWidth: 300, // Minimum width
+    minHeight: 200, // Minimum height
+    show: false, // Start hidden and show when ready
     autoHideMenuBar: true,
     webPreferences: {
       preload: join(__dirname, "../preload/index.mjs"),
@@ -23,7 +25,8 @@ function createWindow(): void {
   });
 
   mainWindow.on('ready-to-show', () => {
-    mainWindow.show();
+    mainWindow.maximize(); // Maximize the window when created
+    mainWindow.show(); // Show the window when it's ready
   });
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
