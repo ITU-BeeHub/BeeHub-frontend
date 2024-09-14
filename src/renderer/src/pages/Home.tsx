@@ -5,7 +5,7 @@ import BeakerIcon from "../components/icons/BeakerIcon";
 
 const Home: React.FC = () => {
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-[#F5FDFD] p-6">
+    <main className="flex flex-col items-center justify-center  bg-[#F5FDFD] p-6">
       <div className="max-w-5xl w-full mx-auto">
         <div className="text-center mb-10">
           <BeakerIcon className="h-20 w-20 text-[#FDC003] mx-auto mb-4" />

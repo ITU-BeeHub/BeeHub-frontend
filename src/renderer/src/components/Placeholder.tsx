@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 import BeakerIcon from "../components/icons/BeakerIcon";
 
 interface PlaceholderProps {
@@ -8,7 +7,8 @@ interface PlaceholderProps {
 
 const Placeholder: React.FC<PlaceholderProps> = ({ title, message }) => {
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
+    <main className="flex-1 flex items-center justify-center p-4 lg:p-4">
+    
       <header className="h-16"> {/* Example fixed header height */}
         {/* Your Header content */}
       </header>
@@ -24,7 +24,7 @@ const Placeholder: React.FC<PlaceholderProps> = ({ title, message }) => {
       <footer className="h-16"> {/* Example fixed footer height */}
         {/* Your Footer content */}
       </footer>
-    </div>
+    </main>
   );
 };
 
