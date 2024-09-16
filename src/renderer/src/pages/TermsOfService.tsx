@@ -45,7 +45,7 @@ const TermsOfServicePage: React.FC = () => {
       </p>
 
       <p className="text-gray-600 mt-6">
-        If you have any questions about these terms, please contact us at <a href="mailto:legal@beehub.com" className="text-blue-500">legal@beehub.com</a>.
+        If you have any questions about these terms, please contact us at <a href="mailto:beehubdev@proton.me" className="text-blue-500">beehubdev@proton.me</a>.
       </p>
     </div>
   );
