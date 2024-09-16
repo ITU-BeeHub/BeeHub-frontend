@@ -13,8 +13,15 @@ const logStream = fs.createWriteStream(logFile, { flags: "a" });
 function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 900,
+    // Default width
     height: 670,
+    // Default height
+    minWidth: 300,
+    // Minimum width
+    minHeight: 200,
+    // Minimum height
     show: false,
+    // Start hidden and show when ready
     autoHideMenuBar: true,
     webPreferences: {
       preload: join(__dirname, "../preload/index.mjs"),
@@ -22,6 +29,7 @@ function createWindow() {
     }
   });
   mainWindow.on("ready-to-show", () => {
+    mainWindow.maximize();
     mainWindow.show();
   });
   mainWindow.webContents.setWindowOpenHandler((details) => {
