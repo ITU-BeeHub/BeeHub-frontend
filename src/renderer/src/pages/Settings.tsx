@@ -49,6 +49,7 @@ const Settings: React.FC = () => {
           />
         </div>
 
+        {/* Sample settings 
         <div className="flex items-center justify-between">
           <label className="text-gray-700 font-medium">Enable Feature</label>
           <input
@@ -78,6 +79,7 @@ const Settings: React.FC = () => {
             className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0372CE] focus:border-transparent"
           />
         </div>
+      */}
       </div>
 
       <div className="mt-8 text-center">
