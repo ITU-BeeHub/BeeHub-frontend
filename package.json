@@ -104,7 +104,7 @@
     ],
     "win": {
       "target": "nsis",
-      "icon": "C:\\Users\\Dervis\\Pictures\\beehub_2Sd_icon.ico"
+      "icon": "./public/beehubicon.ico"
     },
     "mac": {
       "target": "dmg",
