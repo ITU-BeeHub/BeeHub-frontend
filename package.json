@@ -2,8 +2,8 @@
   "name": "bee",
   "private": true,
   "version": "1.0.0",
-  "description": "BeeHub",
-  "author": "BeeHub",
+  "description": "BeeHub - The Ultimate Platform for Istanbul Technical University (ITU) Students",
+  "author": "BeeHub Team <info@beehubapp.com>",
   "type": "module",
   "main": "./out/main/index.js",
   "scripts": {
@@ -72,7 +72,7 @@
     "vite": "^5.4.0"
   },
   "build": {
-    "appId": "com.yourdomain.beehub",
+    "appId": "com.beehubapp.beehub",
     "productName": "BeeHub",
     "directories": {
       "output": "dist"
@@ -104,11 +104,11 @@
     ],
     "win": {
       "target": "nsis",
-      "icon": "path/to/icon.ico"
+      "icon": "C:\\Users\\Dervis\\Pictures\\beehub_2Sd_icon.ico"
     },
     "mac": {
       "target": "dmg",
-      "icon": "path/to/icon.icns"
+      "icon": "assets/icons/bee.icns"
     },
     "nsis": {
       "oneClick": false,
