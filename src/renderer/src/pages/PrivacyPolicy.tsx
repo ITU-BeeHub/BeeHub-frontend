@@ -5,10 +5,17 @@ const PrivacyPolicyPage: React.FC = () => {
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg">
       <h1 className="text-4xl font-bold text-gray-800 mb-4">Privacy Policy</h1>
 
+      {/* Add Last Updated Section */}
+      <p className="text-gray-500 text-sm mb-6">
+        Last Updated: September 16, 2024
+      </p>
+
       <p className="text-gray-600 mb-4">
         At BeeHub, we take your privacy seriously. This Privacy Policy describes how we collect, use, and protect your personal information when you use our services.
       </p>
 
+      {/* Uncomment this section if you want to provide more details about data collection */}
+      {/*
       <h2 className="text-2xl font-semibold text-gray-800 mt-6">Information We Collect</h2>
       <p className="text-gray-600 mb-4">
         We may collect the following types of information:
@@ -28,6 +35,7 @@ const PrivacyPolicyPage: React.FC = () => {
         <li>To communicate with you about updates, offers, and support.</li>
         <li>To comply with legal obligations and protect the rights of BeeHub and its users.</li>
       </ul>
+      */}
 
       <h2 className="text-2xl font-semibold text-gray-800 mt-6">How We Share Your Information</h2>
       <p className="text-gray-600 mb-4">
@@ -36,7 +44,7 @@ const PrivacyPolicyPage: React.FC = () => {
 
       <h2 className="text-2xl font-semibold text-gray-800 mt-6">Your Rights</h2>
       <p className="text-gray-600 mb-4">
-        You have the right to access, correct, or delete your personal information. If you have any concerns or wish to exercise your rights, please contact us at <a href="mailto:privacy@beehub.com" className="text-blue-500">privacy@beehub.com</a>.
+        You have the right to access, correct, or delete your personal information. If you have any concerns or wish to exercise your rights, please contact us at <a href="mailto:beehubdev@proton.me" className="text-blue-500">beehubdev@proton.me</a>.
       </p>
 
       <h2 className="text-2xl font-semibold text-gray-800 mt-6">Changes to This Policy</h2>
@@ -45,7 +53,7 @@ const PrivacyPolicyPage: React.FC = () => {
       </p>
 
       <p className="text-gray-600 mt-6">
-        If you have any questions about this Privacy Policy, please contact us at <a href="mailto:privacy@beehub.com" className="text-blue-500">privacy@beehub.com</a>.
+        If you have any questions about this Privacy Policy, please contact us at <a href="mailto:beehubdev@proton.me" className="text-blue-500">beehubdev@proton.me</a>.
       </p>
     </div>
   );
