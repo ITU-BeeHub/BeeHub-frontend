@@ -11,17 +11,25 @@ const logFile = join(app.getPath('userData'), 'backend_log.txt');
 const logStream = fs.createWriteStream(logFile, { flags: 'a' });
 
 function createWindow(): void {
+
+  const iconPath = process.platform === 'win32'
+    ? join(__dirname, '../../src/renderer/src/assets/icons/icon.png')
+    : process.platform === 'darwin'
+    ? join(__dirname, '../../src/renderer/src/assets/icons/icon.icns')
+    : join(__dirname, '../../src/renderer/src/assets/icons/icon.png');
+
   const mainWindow = new BrowserWindow({
     width: 900, // Default width
     height: 670, // Default height
     minWidth: 300, // Minimum width
     minHeight: 200, // Minimum height
+    icon: iconPath,
     show: false, // Start hidden and show when ready
     autoHideMenuBar: true,
     webPreferences: {
       preload: join(__dirname, "../preload/index.mjs"),
       sandbox: false
-    }
+    },
   });
 
   mainWindow.on('ready-to-show', () => {
