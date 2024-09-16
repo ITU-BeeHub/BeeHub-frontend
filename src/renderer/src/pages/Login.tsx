@@ -51,14 +51,23 @@ const LoginForm: React.FC = () => {
           </Link>
           <p className="mt-2 text-[#212121]">Your University Companion</p>
         </div>
+
+        {/* Add an instructional message */}
+        <div className="mb-4 text-center">
+          <p className="text-sm text-gray-600">
+            Please log in using your <strong>ITU credentials</strong> to access the system.
+          </p>
+        </div>
+
         {error && <p className="text-red-500">{error}</p>}
+
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
             <Label htmlFor="email" className="text-[#212121]">Email</Label>
             <Input
               id="email"
               type="email"
-              placeholder="Enter your email"
+              placeholder="Enter your ITU email"
               className="mt-1 w-full rounded-md border border-[#0372CE] bg-white p-2 text-[#212121] focus:border-[#0372CE] focus:ring-[#0372CE]"
             />
           </div>
@@ -67,7 +76,7 @@ const LoginForm: React.FC = () => {
             <Input
               id="password"
               type="password"
-              placeholder="Enter your password"
+              placeholder="Enter your ITU password"
               className="mt-1 w-full rounded-md border-[#0372CE] bg-white p-2 text-[#212121] focus:border-[#0372CE] focus:ring-[#0372CE]"
             />
           </div>
