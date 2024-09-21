@@ -6,6 +6,7 @@ import BeakerIcon from "../components/icons/BeakerIcon";
 import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';  // Icons for show/hide
 import { useSettings } from "../context/SettingsContext";  // Import the context
 
 const LoginForm: React.FC = () => {
@@ -15,6 +16,7 @@ const LoginForm: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [rememberMe, setRememberMe] = useState(settings.rememberMe?.value as boolean);
   const [loading, setLoading] = useState(false);  // Add loading state
+  const [showPassword, setShowPassword] = useState(false);  // For toggling password visibility
 
   useEffect(() => {
     setRememberMe(settings.rememberMe?.value as boolean);  // Sync with context
@@ -39,6 +41,15 @@ const LoginForm: React.FC = () => {
   const handleRememberMeChange = (checked: boolean) => {
     setRememberMe(checked);
     updateSetting("rememberMe", checked);  // Update context when checkbox changes
+  };
+
+  // Handler to show/hide password when the button is held down
+  const handleMouseDown = () => {
+    setShowPassword(true);
+  };
+
+  const handleMouseUp = () => {
+    setShowPassword(false);
   };
 
   return (
@@ -71,14 +82,30 @@ const LoginForm: React.FC = () => {
               className="mt-1 w-full rounded-md border border-[#0372CE] bg-white p-2 text-[#212121] focus:border-[#0372CE] focus:ring-[#0372CE]"
             />
           </div>
-          <div>
+          <div className="relative">
             <Label htmlFor="password" className="text-[#212121]">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="Enter your ITU password"
-              className="mt-1 w-full rounded-md border-[#0372CE] bg-white p-2 text-[#212121] focus:border-[#0372CE] focus:ring-[#0372CE]"
-            />
+            <div className="relative w-full">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}  // Toggle input type based on state
+                placeholder="Enter your ITU password"
+                className="mt-1 w-full rounded-md border-[#0372CE] bg-white p-2 pr-10 text-[#212121] focus:border-[#0372CE] focus:ring-[#0372CE]"  // Add pr-10 for padding
+              />
+              {/* Show password button */}
+              <button
+                type="button"
+                onMouseDown={handleMouseDown}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}  // In case the user drags the mouse away
+                className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              >
+                {showPassword ? (
+                  <EyeSlashIcon className="h-5 w-5" />
+                ) : (
+                  <EyeIcon className="h-5 w-5" />
+                )}
+              </button>
+            </div>
           </div>
           <div className="flex items-center space-x-2">
             <Checkbox
