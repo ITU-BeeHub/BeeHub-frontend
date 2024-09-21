@@ -18,6 +18,12 @@ const BeePicker: React.FC = (): React.ReactNode => {
     return savedResponse ? JSON.parse(savedResponse) : null;
   });
 
+  // New state to store the course name snapshots
+  const [courseNameMap, setCourseNameMap] = useState<Record<string, string>>(() => {
+    const savedMap = localStorage.getItem('courseNameMap');
+    return savedMap ? JSON.parse(savedMap) : {};
+  });
+
   const [isLoading, setIsLoading] = useState(false); // New state for loading
   const navigate = useNavigate();
   const { isLoggedIn, logout } = useAuth();
@@ -42,8 +48,13 @@ const BeePicker: React.FC = (): React.ReactNode => {
     }
   }, [responseData]);
 
+  useEffect(() => {
+    localStorage.setItem('courseNameMap', JSON.stringify(courseNameMap));
+  }, [courseNameMap]);
+
   const handleAddCourse = (course: Course) => {
     setSelectedCourses([...selectedCourses, course]);
+    setCourseNameMap(prevMap => ({ ...prevMap, [course.crn]: course.dersAdi })); // Save course name snapshot
   };
 
   const handleRemoveCourse = (crn: string) => {
@@ -94,18 +105,21 @@ const BeePicker: React.FC = (): React.ReactNode => {
   };
 
   const getCourseName = (crn: string) => {
-    const course = selectedCourses.find(course => course.crn === crn);
-    return course ? course["dersAdi"] : "Unknown Course";
+    return courseNameMap[crn] || "Unknown Course"; // Retrieve from snapshot map
   };
-
-  const renderResponseItem = (crn: string, result: any) => (
-    <div key={crn} className="border-b border-gray-300 py-2">
-      <h4 className="font-semibold text-blue-600">CRN: {crn} - {getCourseName(crn)}</h4>
-      <p className={`text-sm ${result.statusCode === 0 ? 'text-green-600' : 'text-red-600'}`}>
-        {result.resultData || 'No result data available'}
-      </p>
-    </div>
-  );
+  
+  const renderResponseItem = (crn: string, result: any) => {
+    const courseName = getCourseName(crn); // Get from the snapshot map
+  
+    return (
+      <div key={crn} className="border-b border-gray-300 py-2">
+        <h4 className="font-semibold text-blue-600">CRN: {crn} - {courseName}</h4>
+        <p className={`text-sm ${result.statusCode === 0 ? 'text-green-600' : 'text-red-600'}`}>
+          {result.resultData || 'No result data available'}
+        </p>
+      </div>
+    );
+  };
 
   return (
     <main className="flex-1 flex items-center justify-center p-4 lg:p-4">
