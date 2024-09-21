@@ -17,9 +17,19 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({ onAddCourse }) => {
   // Popover'ların açık/kapalı durumunu yönetmek için state
   const [isGroupPopoverOpen, setIsGroupPopoverOpen] = useState(false);
   const [isCodePopoverOpen, setIsCodePopoverOpen] = useState(false);
-  const [isCRNPopoverOpen, setIsCRNPopoverOpen] = useState(false);
+  const [isCRNPopoverOpen, setIsCRNPopoverOpen] = useState(false);  
+
+  // Search state for filtering
+  const [groupSearchQuery, setGroupSearchQuery] = useState<string>("");
+  const [codeSearchQuery, setCodeSearchQuery] = useState<string>("");
+  const [crnSearchQuery, setCrnSearchQuery] = useState<string>("");
 
   const courseCodeRef = useRef<HTMLDivElement>(null);
+
+  // Ref to capture the width of each PopoverTrigger button
+  const groupTriggerRef = useRef<HTMLButtonElement>(null);
+  const codeTriggerRef = useRef<HTMLButtonElement>(null);
+  const crnTriggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     axios
@@ -67,34 +77,34 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({ onAddCourse }) => {
     (course) => course["dersKodu"] && course["dersKodu"].startsWith(selectedCourseGroup || "")
   );
 
-  // Extracting unique Course Groups
+  // Extracting unique Course Groups and applying search query
   const filteredGroups = Array.from(
     new Set(
       courses
         .filter(course => course["dersKodu"])
         .map((course) => course["dersKodu"].substring(0, 3))
     )
-  ).filter(group => group !== undefined).sort();
+  )
+  .filter(group => group !== undefined && group.toLowerCase().includes(groupSearchQuery.toLowerCase()))
+  .sort();
 
-  // Filtering by specific dersKodu within the selected group
-  const filteredCoursesByCode = filteredCoursesByGroup.filter(
-    (course) => course["dersKodu"] === selectedCourseCode
-  ).sort((a, b) => {
-    return a.crn.localeCompare(b.crn);
-  });
+  // Filtering by specific dersKodu within the selected group and applying search query
+  const filteredCoursesByCode = filteredCoursesByGroup
+    .filter((course) => course["dersKodu"] + " - " + course["dersAdi"] === selectedCourseCode && course.crn.toLowerCase().includes(crnSearchQuery.toLowerCase()))
+    .sort((a, b) => a.crn.localeCompare(b.crn));
 
   const filteredUniqueCourses = Array.from(
     new Set(filteredCoursesByGroup.map((course) => course["dersKodu"]))
-  ).map((uniqueCode) => {
-    return filteredCoursesByGroup.find(course => course["dersKodu"] === uniqueCode);
-  }).filter(course => course !== undefined) // Filter out undefined results
-    .sort((a, b) => {
-      if (a && b) { // Ensure both a and b are not undefined
-        if (a["dersKodu"] < b["dersKodu"]) return -1;
-        if (a["dersKodu"] > b["dersKodu"]) return 1;
-      }
-      return 0; // Treat undefined cases as equal
-    });
+  )
+  .map((uniqueCode) => filteredCoursesByGroup.find(course => course["dersKodu"] === uniqueCode))
+  .filter(course => course !== undefined && (course?.dersKodu?.toLowerCase() + " - " + course?.dersAdi?.toLowerCase()).includes(codeSearchQuery.toLowerCase())) // Filter by search
+  .sort((a, b) => {
+    if (a && b) { // Ensure both a and b are not undefined
+      if (a["dersKodu"] < b["dersKodu"]) return -1;
+      if (a["dersKodu"] > b["dersKodu"]) return 1;
+    }
+    return 0; // Treat undefined cases as equal
+  });
 
   const handleSelectCourseGroup = (group: string) => {
     setSelectedCourseGroup(group);
@@ -117,7 +127,6 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({ onAddCourse }) => {
   const handleAddCourse = () => {
     const selectedCourse = courses.find(
       (course) =>
-        course["dersKodu"] === selectedCourseCode &&
         course.crn === selectedCRN
     );
     if (selectedCourse) {
@@ -137,12 +146,27 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({ onAddCourse }) => {
           <PopoverTrigger asChild>
             <Button
               variant="outline"
+              ref={groupTriggerRef} // Capture button width
               className="w-full sm:w-[120px] text-left font-normal border-[#0372CE] text-[#212121] overflow-hidden text-ellipsis whitespace-nowrap justify-start px-2"
             >
               {selectedCourseGroup ? selectedCourseGroup : "Course Group"}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 max-h-80 overflow-y-auto" align="start">
+          <PopoverContent
+            className="p-0 max-h-80 overflow-y-auto"
+            style={{ width: groupTriggerRef.current?.offsetWidth || "auto" }} // Dynamically set width
+            align="start"
+          >
+            {/* Search input for Course Group */}
+            <div className="p-2">
+              <input
+                type="text"
+                className="w-full p-2 border border-gray-300 rounded-md"
+                placeholder="Search Course Group"
+                value={groupSearchQuery}
+                onChange={(e) => setGroupSearchQuery(e.target.value)}
+              />
+            </div>
             <div className="grid gap-2 p-2">
               {filteredGroups.map((group) => (
                 group && (
@@ -156,7 +180,6 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({ onAddCourse }) => {
                   </Button>
                 )
               ))}
-
             </div>
           </PopoverContent>
         </Popover>
@@ -166,20 +189,36 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({ onAddCourse }) => {
           <PopoverTrigger asChild>
             <Button
               variant="outline"
+              ref={codeTriggerRef} // Capture button width
               className="w-full sm:w-[380px] text-left font-normal border-[#0372CE] text-[#212121] overflow-hidden text-ellipsis whitespace-nowrap justify-start px-2"
               disabled={!selectedCourseGroup}
             >
               {selectedCourseCode ? selectedCourseCode : "Select Course"}
             </Button>
           </PopoverTrigger>
-          <PopoverContent ref={courseCodeRef} className="w-auto p-0 max-h-80 overflow-y-auto" align="start">
+          <PopoverContent
+            ref={courseCodeRef}
+            className="p-0 max-h-80 overflow-y-auto"
+            style={{ width: codeTriggerRef.current?.offsetWidth || "auto" }} // Dynamically set width
+            align="start"
+          >
+            {/* Search input for Course */}
+            <div className="p-2">
+              <input
+                type="text"
+                className="w-full p-2 border border-gray-300 rounded-md"
+                placeholder="Search Course"
+                value={codeSearchQuery}
+                onChange={(e) => setCodeSearchQuery(e.target.value)}
+              />
+            </div>
             <div className="grid gap-2 p-2">
               {filteredUniqueCourses.map((course) => (
                 <Button
                   variant="ghost"
                   className="justify-start w-full"
                   key={course && course["dersKodu"] && course["dersAdi"] ? course["dersKodu"] + course["dersAdi"] : ""}
-                  onClick={() => handleSelectCourseCode(course && course["dersKodu"] ? course["dersKodu"] : "")}
+                  onClick={() => handleSelectCourseCode(course && course["dersKodu"] ? course["dersKodu"] + " - " + course["dersAdi"] : "")}
                 >
                   {course && course["dersKodu"] ? `${course["dersKodu"]} - ${course["dersAdi"]}` : ""}
                 </Button>
@@ -193,13 +232,28 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({ onAddCourse }) => {
           <PopoverTrigger asChild>
             <Button
               variant="outline"
+              ref={crnTriggerRef} // Capture button width
               className="w-full sm:w-[120px] text-left font-normal border-[#0372CE] text-[#212121] overflow-hidden text-ellipsis whitespace-nowrap justify-start px-2"
               disabled={!selectedCourseCode}
             >
               {selectedCRN ? selectedCRN : "Select CRN"}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 max-h-80 overflow-y-auto" align="start">
+          <PopoverContent
+            className="p-0 max-h-80 overflow-y-auto"
+            style={{ width: crnTriggerRef.current?.offsetWidth || "auto" }} // Dynamically set width
+            align="start"
+          >
+            {/* Search input for CRN */}
+            <div className="p-2">
+              <input
+                type="text"
+                className="w-full p-2 border border-gray-300 rounded-md"
+                placeholder="Search CRN"
+                value={crnSearchQuery}
+                onChange={(e) => setCrnSearchQuery(e.target.value)}
+              />
+            </div>
             <div className="grid gap-2 p-2">
               {filteredCoursesByCode.map((course) => (
                 <Button
