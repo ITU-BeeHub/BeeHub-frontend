@@ -4,14 +4,24 @@ import CourseSelector from "../components/CourseSelector";
 import CourseList from "../components/CourseList";
 import Calendar from "../components/Calendar";
 import { Button } from "../components/ui/button";
-import { Course } from "../../../types/Course";
+import { Course, SelectedCourse } from "../../../types/Course";
 import { useAuth } from "../context/AuthContext";
 
+
 const BeePicker: React.FC = (): React.ReactNode => {
-  const [selectedCourses, setSelectedCourses] = useState<Course[]>(() => {
+  const [selectedCourses, setSelectedCourses] = useState<SelectedCourse[]>(() => {
     const savedCourses = localStorage.getItem('selectedCourses');
     return savedCourses ? JSON.parse(savedCourses) : [];
   });
+  
+  const [reserveCourseToAdd, setReserveCourseToAdd] = useState<Course | null>(null);
+
+  const handleAddCourseAsReserve = (course: Course) => {
+    setReserveCourseToAdd(course);
+    // Notify the user to select a course from their schedule
+    alert("Please select a course from your schedule to assign the reserve course to.");
+  };
+  
 
   const [responseData, setResponseData] = useState<any | null>(() => {
     const savedResponse = localStorage.getItem('responseData');
@@ -53,13 +63,16 @@ const BeePicker: React.FC = (): React.ReactNode => {
   }, [courseNameMap]);
 
   const handleAddCourse = (course: Course) => {
-    setSelectedCourses([...selectedCourses, course]);
-    setCourseNameMap(prevMap => ({ ...prevMap, [course.crn]: course.dersAdi })); // Save course name snapshot
+    setSelectedCourses([...selectedCourses, { course }]); // Wrap 'course' inside an object
+    setCourseNameMap(prevMap => ({ ...prevMap, [course.crn]: course.dersAdi }));
   };
 
   const handleRemoveCourse = (crn: string) => {
-    setSelectedCourses(selectedCourses.filter((course) => course.crn !== crn));
+    setSelectedCourses(selectedCourses.filter(
+      (selectedCourse) => selectedCourse.course.crn !== crn
+    ));
   };
+  
 
   const handleSubmit = async () => {
     setIsLoading(true); // Start loading
@@ -67,7 +80,7 @@ const BeePicker: React.FC = (): React.ReactNode => {
 
     try {
       // Extracting course codes
-      const courseCodes = selectedCourses.map(course => course.crn);
+      const courseCodes = selectedCourses.map(selectedCourse => selectedCourse.course.crn);
 
       // Sending the request to the backend
       const response = await fetch('http://localhost:8080/beePicker/pick', {
@@ -107,6 +120,24 @@ const BeePicker: React.FC = (): React.ReactNode => {
   const getCourseName = (crn: string) => {
     return courseNameMap[crn] || "Unknown Course"; // Retrieve from snapshot map
   };
+
+  const handleSelectParentCourse = (parentCrn: string) => {
+    if (reserveCourseToAdd) {
+      // Find the parent course in selectedCourses
+      const parentCourseIndex = selectedCourses.findIndex(
+        (selectedCourse) => selectedCourse.course.crn === parentCrn
+      );
+      if (parentCourseIndex !== -1) {
+        const updatedCourses = [...selectedCourses];
+        updatedCourses[parentCourseIndex].reserveCourse = reserveCourseToAdd;
+        setSelectedCourses(updatedCourses);
+        setReserveCourseToAdd(null);
+      } else {
+        alert("Selected course not found in your schedule.");
+      }
+    }
+  };
+  
   
   const renderResponseItem = (crn: string, result: any) => {
     const courseName = getCourseName(crn); // Get from the snapshot map
@@ -124,7 +155,8 @@ const BeePicker: React.FC = (): React.ReactNode => {
   return (
     <main className="flex-1 flex items-center justify-center p-4 lg:p-4">
       <div className="w-full max-w-full rounded-lg bg-white p-6 shadow">
-        <CourseSelector onAddCourse={handleAddCourse} />
+      <CourseSelector onAddCourse={handleAddCourse} onAddCourseAsReserve={handleAddCourseAsReserve} />
+
         <CourseList
           courses={selectedCourses}
           onRemoveCourse={handleRemoveCourse}
@@ -132,7 +164,10 @@ const BeePicker: React.FC = (): React.ReactNode => {
         <Calendar
           courses={selectedCourses}
           onRemoveCourse={handleRemoveCourse}
+          onSelectParentCourse={handleSelectParentCourse}
+          selectingParentCourse={!!reserveCourseToAdd}
         />
+
         <Button
           className="mt-6 w-full bg-[#FDC003] text-[#0372CE] font-bold hover:bg-[#fdc003d9] flex justify-center items-center"
           onClick={handleSubmit}
@@ -152,6 +187,16 @@ const BeePicker: React.FC = (): React.ReactNode => {
             </div>
           </div>
         )}
+        {reserveCourseToAdd && (
+          <div className="mt-4">
+            <p>
+              Please select a course from your schedule to assign the reserve course "
+              {reserveCourseToAdd.dersAdi}" to.
+            </p>
+            <Button onClick={() => setReserveCourseToAdd(null)}>Cancel</Button>
+          </div>
+        )}
+
       </div>
     </main>
   );

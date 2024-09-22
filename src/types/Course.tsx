@@ -23,4 +23,10 @@ export interface Course {
   "sinifOnsart": string;
   "sinifProgram": string;
   "webdeGoster": string;
+  "parentCRN": string;
+}
+
+export interface SelectedCourse {
+  course: Course;
+  reserveCourse?: Course;
 }

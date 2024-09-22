@@ -1,14 +1,21 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
 import { Button } from "./ui/button";
-import { Course } from "../../../types/Course";
+import { Course, SelectedCourse } from "../../../types/Course";
 import axios from "axios";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "./ui/dropdown-menu.tsx";
 
 interface CourseSelectorProps {
   onAddCourse: (course: Course) => void;
+  onAddCourseAsReserve: (course: Course) => void;
 }
 
-const CourseSelector: React.FC<CourseSelectorProps> = ({ onAddCourse }) => {
+const CourseSelector: React.FC<CourseSelectorProps> = ({ onAddCourse, onAddCourseAsReserve }) => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [selectedCourseGroup, setSelectedCourseGroup] = useState<string | null>(null);
   const [selectedCourseCode, setSelectedCourseCode] = useState<string | null>(null);
@@ -137,6 +144,20 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({ onAddCourse }) => {
       setSelectedCRN(null);
     }
   };
+
+  const handleAddCourseAsReserve = () => {
+    const selectedCourse = courses.find(
+      (course) => course.crn === selectedCRN
+    );
+    if (selectedCourse) {
+      onAddCourseAsReserve(selectedCourse);
+      // Reset selections after adding the reserve course
+      setSelectedCourseGroup(null);
+      setSelectedCourseCode(null);
+      setSelectedCRN(null);
+    }
+  };
+  
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between flex-wrap">
@@ -270,13 +291,35 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({ onAddCourse }) => {
         </Popover>
       </div>
 
-      <Button
-        className="bg-[#FDC003] text-[#0372CE] font-bold hover:bg-[#fdc003d9] w-full sm:w-auto"
-        onClick={handleAddCourse}
-        disabled={!selectedCourseGroup || !selectedCourseCode || !selectedCRN} // Seçimler yapılmadan buton aktif olmaz
-      >
-        Add
-      </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            className="bg-[#FDC003] text-[#0372CE] font-bold hover:bg-[#fdc003d9] w-full sm:w-auto flex items-center justify-center"
+            disabled={!selectedCourseGroup || !selectedCourseCode || !selectedCRN}
+          >
+            Add
+            <svg
+              className="ml-2 h-4 w-4"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M5.23 7.21a.75.75 0 011.06.02L10 11.586l3.71-4.354a.75.75 0 011.08 1.04l-4.25 5A.75.75 0 0110 13a.75.75 0 01-.54-.22l-4.25-5a.75.75 0 01.02-1.06z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem onClick={handleAddCourse}>
+            Add
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleAddCourseAsReserve}>
+            Add as Reserve
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };
