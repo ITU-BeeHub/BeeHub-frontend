@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
 import { Button } from "./ui/button";
-import { Course, SelectedCourse } from "../../../types/Course";
+import { Course } from "../../../types/Course";
 import axios from "axios";
 import {
   DropdownMenu,
@@ -15,7 +15,11 @@ interface CourseSelectorProps {
   onAddCourseAsReserve: (course: Course) => void;
 }
 
-const CourseSelector: React.FC<CourseSelectorProps> = ({ onAddCourse, onAddCourseAsReserve }) => {
+const CourseSelector: React.FC<CourseSelectorProps> = ({
+  onAddCourse,
+  onAddCourseAsReserve,
+}) => {
+
   const [courses, setCourses] = useState<Course[]>([]);
   const [selectedCourseGroup, setSelectedCourseGroup] = useState<string | null>(null);
   const [selectedCourseCode, setSelectedCourseCode] = useState<string | null>(null);
@@ -291,35 +295,47 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({ onAddCourse, onAddCours
         </Popover>
       </div>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            className="bg-[#FDC003] text-[#0372CE] font-bold hover:bg-[#fdc003d9] w-full sm:w-auto flex items-center justify-center"
-            disabled={!selectedCourseGroup || !selectedCourseCode || !selectedCRN}
-          >
-            Add
-            <svg
-              className="ml-2 h-4 w-4"
-              fill="currentColor"
-              viewBox="0 0 20 20"
+      <div className="flex items-center">
+        {/* Left part of the button */}
+        <Button
+          className="bg-[#FDC003] text-[#0372CE] font-bold hover:bg-[#fdc003d9] rounded-r-none px-4"
+          disabled={!selectedCourseGroup || !selectedCourseCode || !selectedCRN}
+          onClick={handleAddCourse}
+          style={{ flex: "0 0 auto" }} // Prevent stretching
+        >
+          Add
+        </Button>
+        {/* Separator line */}
+        <div className="h-full w-px bg-gray-300"></div>
+        {/* Right part with dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              className="bg-[#FDC003] text-[#0372CE] font-bold hover:bg-[#fdc003d9] rounded-l-none border-l-0 px-2"
+              disabled={!selectedCourseGroup || !selectedCourseCode || !selectedCRN}
+              style={{ flex: "0 0 auto" }} // Prevent stretching
             >
-              <path
-                fillRule="evenodd"
-                d="M5.23 7.21a.75.75 0 011.06.02L10 11.586l3.71-4.354a.75.75 0 011.08 1.04l-4.25 5A.75.75 0 0110 13a.75.75 0 01-.54-.22l-4.25-5a.75.75 0 01.02-1.06z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem onClick={handleAddCourse}>
-            Add
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleAddCourseAsReserve}>
-            Add as Reserve
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+              <svg
+                className="h-4 w-4"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                {/* SVG path */}
+                <path
+                  fillRule="evenodd"
+                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.586l3.71-4.354a.75.75 0 011.08 1.04l-4.25 5A.75.75 0 0110 13a.75.75 0 01-.54-.22l-4.25-5a.75.75 0 01.02-1.06z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="whitespace-nowrap" style={{ width: "auto" }}>
+            <DropdownMenuItem className="whitespace-nowrap" style={{ width: "auto" }} onClick={handleAddCourseAsReserve}>
+              Add as Reserve
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
   );
 };

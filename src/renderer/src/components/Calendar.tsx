@@ -2,16 +2,16 @@ import React, { useState } from "react";
 import CalendarDaysIcon from "./icons/CalendarDaysIcon";
 import { Button } from "./ui/button";
 import XIcon from "../components/icons/XIcon";
-import CourseDetailsModal from "./CourseDetailsModal"; // Modal bileşenini ekle
+import CourseDetailsModal from "./CourseDetailsModal";
 import { Course, SelectedCourse } from "../../../types/Course";
 
 interface CalendarProps {
   courses: SelectedCourse[];
   onRemoveCourse: (crn: string) => void;
+  onRemoveReserveCourse: (parentCrn: string, reserveCrn: string) => void;
   onSelectParentCourse?: (parentCrn: string) => void;
   selectingParentCourse: boolean;
 }
-
 
 interface TransformedCourse {
   id: string;
@@ -27,6 +27,9 @@ interface TransformedCourse {
   capacity: string;
   enrolled: string;
   isReserve: boolean;
+  groupId: number;
+  depth: number;
+  parentCrn?: string;
 }
 
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
@@ -44,9 +47,18 @@ const hours = [
   "18:00",
 ];
 
+const reserveColors = ["#C0C0C0", "#A9A9A9", "#808080", "#696969", "#505050"];
+
+// Function to generate a color based on a unique ID
+const generateColor = (id: number) => {
+  const hue = (id * 137.508) % 360; // Use golden angle approximation
+  return `hsl(${hue}, 70%, 50%)`;
+};
+
 const Calendar: React.FC<CalendarProps> = ({
   courses,
   onRemoveCourse,
+  onRemoveReserveCourse,
   onSelectParentCourse,
   selectingParentCourse,
 }) => {
@@ -89,18 +101,22 @@ const Calendar: React.FC<CalendarProps> = ({
     return dayMap[day] || day;
   };
 
-  const transformCourseData = (course: Course, isReserve: boolean = false): TransformedCourse[] => {
+  const transformCourseData = (
+    selectedCourse: SelectedCourse,
+    isReserve: boolean = false,
+    depth: number = 0,
+    parentCrn?: string
+  ): TransformedCourse[] => {
+    const { course, reserveCourse, groupId } = selectedCourse;
     const days = course.gunAdiEN.split(" ");
     const times = course.baslangicSaati.split(" ");
-
     const transformedCourses: TransformedCourse[] = [];
-
+  
     days.forEach((day: string, index: number) => {
       const timeRange = times[index].split("/");
-
       const startTime = `${timeRange[0].slice(0, 2)}:${timeRange[0].slice(2)}`;
       const endTime = `${timeRange[1].slice(0, 2)}:${timeRange[1].slice(2)}`;
-
+  
       transformedCourses.push({
         id: course.crn,
         name: course["dersAdi"],
@@ -115,19 +131,30 @@ const Calendar: React.FC<CalendarProps> = ({
         capacity: course.kontenjan,
         enrolled: course.rezervasyon,
         isReserve,
+        groupId,
+        depth,
+        parentCrn,
       });
     });
-
+  
+    if (reserveCourse) {
+      const reserveTransformedCourses = transformCourseData(
+        reserveCourse,
+        true,
+        depth + 1,
+        course.crn
+      );
+      transformedCourses.push(...reserveTransformedCourses);
+    }
+  
     return transformedCourses;
   };
 
-  const transformedCourses = courses.flatMap((selectedCourse) => {
-    const mainCourses = transformCourseData(selectedCourse.course);
-    const reserveCourses = selectedCourse.reserveCourse
-      ? transformCourseData(selectedCourse.reserveCourse, true)
-      : [];
-    return [...mainCourses, ...reserveCourses];
-  });
+  const transformedCourses = courses.flatMap((selectedCourse) =>
+    transformCourseData(selectedCourse)
+  );
+  
+  
 
   return (
     <div className="mt-2 bg-white rounded-lg shadow h-auto w-full overflow-x-auto p-4">
@@ -158,43 +185,60 @@ const Calendar: React.FC<CalendarProps> = ({
                 ))}
               </div>
               <div className="events mx-2 absolute left-0 right-0 bottom-0 top-0 grid grid-flow-row border-l-2 border-dashed grid-rows-[repeat(24,_1fr)]">
-                {transformedCourses
-                  .filter((course) => course.day === day)
-                  .map((course) => {
-                    const gridRow = calculateGridRow(course.startTime, course.endTime);
-                    return (
-                      <div
-                        key={course.crn}
-                        className="text-xs rounded-xl box-border break-words p-1 relative flex flex-col justify-center items-center cursor-pointer"
-                        style={{
-                          gridRow: gridRow,
-                          backgroundColor: course.isReserve ? "#C0C0C0" : "#FDC003",
-                        }}
-                        onClick={() => {
-                          if (selectingParentCourse && !course.isReserve && onSelectParentCourse) {
-                            onSelectParentCourse(course.crn);
-                          } else {
-                            openModal(course);
-                          }
-                        }}
-                      >
-                        <div className="absolute top-0 right-0">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="p-0 m-0 text-[#0372CE] hover:bg-transparent hover:text-[#0372CE] h-6 w-6"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onRemoveCourse(course.crn);
-                            }}
-                          >
-                            <XIcon className="h-2.5 w-2.5" />
-                            <span className="sr-only">Remove</span>
-                          </Button>
-                        </div>
-                        <div className="text-center text-sm ">
-                          {course.code} <br />
-                          {course.name}
+        {transformedCourses
+          .filter((course) => course.day === day)
+          .map((course) => {
+            const gridRow = calculateGridRow(course.startTime, course.endTime);
+            return (
+              <div
+                key={`${course.crn}-${course.depth}`} // Use depth to differentiate duplicates
+                className="text-xs rounded-xl box-border break-words p-1 relative flex flex-col justify-center items-center cursor-pointer"
+                style={{
+                  gridRow: gridRow,
+                  backgroundColor: course.isReserve
+                    ? reserveColors[Math.min(course.depth - 1, reserveColors.length - 1)]
+                    : "#FDC003",
+                }}
+                onClick={() => {
+                  if (selectingParentCourse && onSelectParentCourse) {
+                    onSelectParentCourse(course.crn);
+                  } else {
+                    openModal(course);
+                  }
+                }}
+              >
+                {/* Remove Button */}
+                <div className="absolute top-0 right-0">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="p-0 m-0 text-[#0372CE] hover:bg-transparent hover:text-[#0372CE] h-6 w-6"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (course.isReserve && onRemoveReserveCourse) {
+                        onRemoveReserveCourse(course.parentCrn!, course.crn);
+                      } else {
+                        onRemoveCourse(course.crn);
+                      }
+                    }}
+                  >
+                    <XIcon className="h-2.5 w-2.5" />
+                    <span className="sr-only">Remove</span>
+                  </Button>
+                </div>
+                {/* Group Indicator */}
+                <div className="absolute top-0 left-0 m-1">
+                  <div
+                    className="h-4 w-4 rounded-full"
+                    style={{
+                      backgroundColor: generateColor(course.groupId),
+                    }}
+                  ></div>
+                </div>
+                {/* Course Information */}
+                <div className="text-center text-sm ">
+                  {course.code} <br />
+                  {course.name} <br />
                         </div>
                       </div>
                     );

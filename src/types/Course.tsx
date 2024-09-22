@@ -28,5 +28,6 @@ export interface Course {
 
 export interface SelectedCourse {
   course: Course;
-  reserveCourse?: Course;
+  reserveCourse?: SelectedCourse;
+  groupId: number;
 }
