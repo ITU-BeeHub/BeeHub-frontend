@@ -4,7 +4,7 @@ import CourseSelector from "../components/CourseSelector";
 import CourseList from "../components/CourseList";
 import Calendar from "../components/Calendar";
 import { Button } from "../components/ui/button";
-import { Course, SelectedCourse } from "../../../types/Course";
+import { Course, SelectedCourse, CourseRequest } from "../../../types/Course";
 import { useAuth } from "../context/AuthContext";
 import XIcon from "../components/icons/XIcon";
 
@@ -18,6 +18,13 @@ const BeePicker: React.FC = (): React.ReactNode => {
 
   const handleAddCourseAsReserve = (course: Course) => {
     setReserveCourseToAdd(course);
+
+    // Add the reserve course to the courseNameMap
+    setCourseNameMap((prevMap) => ({
+      ...prevMap,
+      [course.crn]: course.dersAdi,
+    }));
+
     // Notify the user to select a course from their schedule
     // We dont need this notification as we are using a modal on bottom right corner for now.
     //setNotification("Please select a course from your schedule to assign the reserve course.");
@@ -136,14 +143,26 @@ const BeePicker: React.FC = (): React.ReactNode => {
     }
   };
 
+  function serializeSelectedCourse(selectedCourse: SelectedCourse): CourseRequest {
+    const result: CourseRequest = {
+      crn: selectedCourse.course.crn,
+    };
+  
+    if (selectedCourse.reserveCourse) {
+      result.reserves = [serializeSelectedCourse(selectedCourse.reserveCourse)];
+    }
+  
+    return result;
+  }
+
   const handleSubmit = async () => {
     setIsLoading(true); // Start loading
     setResponseData(null); // Clear previous response data
-
+  
     try {
-      // Extracting course codes
-      const courseCodes = selectedCourses.map((selectedCourse) => selectedCourse.course.crn);
-
+      // Serialize selected courses into the new structure
+      const courseRequests = selectedCourses.map(serializeSelectedCourse);
+  
       // Sending the request to the backend
       const response = await fetch("http://localhost:8080/beePicker/pick", {
         method: "POST",
@@ -151,9 +170,9 @@ const BeePicker: React.FC = (): React.ReactNode => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify({ courseCodes }),
+        body: JSON.stringify({ courses: courseRequests }),
       });
-
+  
       if (response.status === 401) {
         logout();
         navigate("/login");

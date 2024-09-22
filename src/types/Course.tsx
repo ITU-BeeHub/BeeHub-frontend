@@ -31,3 +31,8 @@ export interface SelectedCourse {
   reserveCourse?: SelectedCourse;
   groupId: number;
 }
+
+export interface CourseRequest {
+  crn: string;
+  reserves?: CourseRequest[];
+}

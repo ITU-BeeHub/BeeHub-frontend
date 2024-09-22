@@ -3,7 +3,7 @@ import CalendarDaysIcon from "./icons/CalendarDaysIcon";
 import { Button } from "./ui/button";
 import XIcon from "../components/icons/XIcon";
 import CourseDetailsModal from "./CourseDetailsModal";
-import { Course, SelectedCourse } from "../../../types/Course";
+import {SelectedCourse } from "../../../types/Course";
 
 interface CalendarProps {
   courses: SelectedCourse[];
