@@ -8,6 +8,17 @@ import { Course, SelectedCourse, CourseRequest } from "../../../types/Course";
 import { useAuth } from "../context/AuthContext";
 import XIcon from "../components/icons/XIcon";
 
+interface ResponseItem {
+  crn: string;
+  result: {
+    statusCode: number;
+    resultCode: string;
+    resultData: string;
+    [key: string]: any; // Include any additional properties
+  };
+}
+
+
 const BeePicker: React.FC = (): React.ReactNode => {
   const [selectedCourses, setSelectedCourses] = useState<SelectedCourse[]>(() => {
     const savedCourses = localStorage.getItem("selectedCourses");
@@ -32,11 +43,11 @@ const BeePicker: React.FC = (): React.ReactNode => {
 
   const [groupIdCounter, setGroupIdCounter] = useState(0);
 
-  const [responseData, setResponseData] = useState<any | null>(() => {
+  const [responseData, setResponseData] = useState<ResponseItem[]>(() => {
     const savedResponse = localStorage.getItem("responseData");
-    return savedResponse ? JSON.parse(savedResponse) : null;
+    return savedResponse ? JSON.parse(savedResponse) : [];
   });
-
+  
   // New state to store the course name snapshots
   const [courseNameMap, setCourseNameMap] = useState<Record<string, string>>(() => {
     const savedMap = localStorage.getItem("courseNameMap");
@@ -83,7 +94,7 @@ const BeePicker: React.FC = (): React.ReactNode => {
   }, [selectedCourses]);
 
   useEffect(() => {
-    if (responseData) {
+    if (responseData && responseData.length > 0) {
       localStorage.setItem("responseData", JSON.stringify(responseData));
     }
   }, [responseData]);
@@ -157,7 +168,7 @@ const BeePicker: React.FC = (): React.ReactNode => {
 
   const handleSubmit = async () => {
     setIsLoading(true); // Start loading
-    setResponseData(null); // Clear previous response data
+    setResponseData([]); // Clear previous response data
   
     try {
       // Serialize selected courses into the new structure
@@ -176,28 +187,59 @@ const BeePicker: React.FC = (): React.ReactNode => {
       if (response.status === 401) {
         logout();
         navigate("/login");
-      } else if (response.ok) {
-        const data = await response.json();
-        setResponseData(data); // Set the parsed JSON data for display
-        console.log("Picking successful:", data);
-      } else {
+        setIsLoading(false);
+        return;
+      } else if (!response.ok) {
         const errorData = await response.json();
-        setResponseData(errorData); // Set the error data for display
+        setResponseData([errorData]);
         console.error("Error picking courses:", errorData);
+        setIsLoading(false);
+        return;
       }
+  
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error("No readable stream available");
+      }
+  
+      const decoder = new TextDecoder();
+      let buffer = "";
+  
+      const read = async () => {
+        const { done, value } = await reader.read();
+        if (done) {
+          setIsLoading(false);
+          return;
+        }
+        buffer += decoder.decode(value, { stream: true });
+  
+        let lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+  
+        for (let line of lines) {
+          if (line.trim()) {
+            const parsedData: ResponseItem = JSON.parse(line);
+            setResponseData((prevData: ResponseItem[]) => {
+              // Check if the CRN already exists in the state
+              const exists = prevData.some((item) => item.crn === parsedData.crn);
+              if (!exists) {
+                return [...prevData, parsedData]; // Only add if the CRN doesn't exist
+              }
+              return prevData; // Return the previous data if CRN exists
+            });
+          }
+        }
+  
+        await read();
+      };
+  
+      await read();
     } catch (error) {
-      if (error instanceof Error) {
-        setResponseData({ error: error.message });
-        console.error("Error submitting course selection:", error);
-      } else {
-        setResponseData({ error: "An unknown error occurred" });
-        console.error("An unknown error occurred:", error);
-      }
-    } finally {
-      setIsLoading(false); // Stop loading
+      console.error("Error submitting course selection:", error);
+      setIsLoading(false);
     }
   };
-
+  
   const getCourseName = (crn: string) => {
     return courseNameMap[crn] || "Unknown Course"; // Retrieve from snapshot map
   };
@@ -246,25 +288,6 @@ const BeePicker: React.FC = (): React.ReactNode => {
         setNotification("Selected course not found in your schedule.");
       }
     }
-  };
-
-  const renderResponseItem = (crn: string, result: any) => {
-    const courseName = getCourseName(crn); // Get from the snapshot map
-
-    return (
-      <div key={crn} className="border-b border-gray-300 py-2">
-        <h4 className="font-semibold text-blue-600">
-          CRN: {crn} - {courseName}
-        </h4>
-        <p
-          className={`text-sm ${
-            result.statusCode === 0 ? "text-green-600" : "text-red-600"
-          }`}
-        >
-          {result.resultData || "No result data available"}
-        </p>
-      </div>
-    );
   };
 
   return (
@@ -319,16 +342,29 @@ const BeePicker: React.FC = (): React.ReactNode => {
             "Submit Course Selection"
           )}
         </Button>
-        {responseData && (
+        
+        {responseData && responseData.length > 0 && (
           <div className="mt-6 bg-gray-100 p-4 rounded-lg">
             <h3 className="text-lg font-semibold text-gray-700">Course Selection Results:</h3>
             <div className="mt-4 space-y-4">
-              {Object.keys(responseData).map((crn) =>
-                renderResponseItem(crn, responseData[crn])
-              )}
+              {responseData.map((response: ResponseItem) => (
+                <div key={response.crn} className="border-b border-gray-300 py-2">
+                  <h4 className="font-semibold text-blue-600">
+                    CRN: {response.crn} - {getCourseName(response.crn)}
+                  </h4>
+                  <p
+                    className={`text-sm ${
+                      response.result.statusCode === 0 ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
+                    {response.result.resultData || "No result data available"}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
         )}
+
         {notification && (
           <div className="fixed top-4 right-4 bg-[#FDC003] text-[#0372CE] p-4 rounded shadow-lg">
             <div className="flex items-center">
