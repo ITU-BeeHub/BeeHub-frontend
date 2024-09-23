@@ -41,7 +41,11 @@ const BeePicker: React.FC = (): React.ReactNode => {
     //setNotification("Please select a course from your schedule to assign the reserve course.");
   };
 
-  const [groupIdCounter, setGroupIdCounter] = useState(0);
+  // Load groupIdCounter from localStorage if it exists, otherwise initialize it to 0
+  const [groupIdCounter, setGroupIdCounter] = useState<number>(() => {
+    const savedCounter = localStorage.getItem("groupIdCounter");
+    return savedCounter ? JSON.parse(savedCounter) : 0;
+  });
 
   const [responseData, setResponseData] = useState<ResponseItem[]>(() => {
     const savedResponse = localStorage.getItem("responseData");
@@ -103,8 +107,13 @@ const BeePicker: React.FC = (): React.ReactNode => {
     localStorage.setItem("courseNameMap", JSON.stringify(courseNameMap));
   }, [courseNameMap]);
 
+  // Save groupIdCounter to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem("groupIdCounter", JSON.stringify(groupIdCounter));
+  }, [groupIdCounter]);
+
   const handleAddCourse = (course: Course) => {
-    const newGroupId = groupIdCounter + 1;
+    const newGroupId = (groupIdCounter + 1) % 32; // Maximum 32 random colors (to prevent integer overflow)
     setGroupIdCounter(newGroupId);
     setSelectedCourses([...selectedCourses, { course, groupId: newGroupId }]);
     setCourseNameMap((prevMap) => ({ ...prevMap, [course.crn]: course.dersAdi }));
