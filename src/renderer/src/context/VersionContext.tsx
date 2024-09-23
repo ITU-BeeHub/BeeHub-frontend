@@ -19,7 +19,7 @@ export const useVersion = () => useContext(VersionContext);
 export const VersionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isVersionValid, setIsVersionValid] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [backendAvailable, setBackendAvailable] = useState(true);
+  const [backendAvailable, setBackendAvailable] = useState(false);  // Initially set to false
   const navigate = useNavigate();
 
   const checkVersion = async () => {
@@ -29,7 +29,7 @@ export const VersionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         const { version: backendVersion } = await response.json();
         if (backendVersion === VERSION) {
           setIsVersionValid(true);
-          setBackendAvailable(true);
+          setBackendAvailable(true);  // Backend is now available
         } else {
           navigate("/version-error");
         }
@@ -38,7 +38,7 @@ export const VersionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }
     } catch (error) {
       console.error("Error checking app version:", error);
-      setBackendAvailable(false);
+      setBackendAvailable(false);  // Backend still not available
     } finally {
       setLoading(false);
     }
@@ -46,14 +46,15 @@ export const VersionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   useEffect(() => {
     const interval = setInterval(() => {
-      checkVersion();
-      if (backendAvailable && isVersionValid) {
-        clearInterval(interval); // Stop checking once the backend is available and the version is valid
+      if (!backendAvailable) {
+        checkVersion();  // Keep checking as long as the backend is not available
+      } else {
+        clearInterval(interval);  // Stop checking once the backend becomes available
       }
-    }, 5000); // Retry every 5 seconds
+    }, 5000);  // Retry every 5 seconds
 
-    return () => clearInterval(interval); // Clear interval on component unmount
-  }, [backendAvailable, isVersionValid, navigate]);
+    return () => clearInterval(interval);  // Clear interval on component unmount
+  }, [backendAvailable, navigate]);
 
   return (
     <VersionContext.Provider value={{ isVersionValid, loading, backendAvailable }}>
