@@ -220,12 +220,22 @@ const BeePicker: React.FC = (): React.ReactNode => {
           if (line.trim()) {
             const parsedData: ResponseItem = JSON.parse(line);
             setResponseData((prevData: ResponseItem[]) => {
-              // Check if the CRN already exists in the state
-              const exists = prevData.some((item) => item.crn === parsedData.crn);
-              if (!exists) {
-                return [...prevData, parsedData]; // Only add if the CRN doesn't exist
+              const existingIndex = prevData.findIndex((item) => item.crn === parsedData.crn);
+        
+              if (existingIndex === -1) {
+                // If the CRN doesn't exist, add it
+                return [...prevData, parsedData];
+              } else {
+                const existingItem = prevData[existingIndex];
+                // If the new response is successful and the existing one isn't, replace the old one
+                if (parsedData.result.statusCode === 0 && existingItem.result.statusCode !== 0) {
+                  const updatedData = [...prevData];
+                  updatedData[existingIndex] = parsedData;
+                  return updatedData;
+                }
+                // If the existing one is successful or both failed, keep the existing one
+                return prevData;
               }
-              return prevData; // Return the previous data if CRN exists
             });
           }
         }
