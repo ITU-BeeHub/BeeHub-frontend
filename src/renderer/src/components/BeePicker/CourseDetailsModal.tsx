@@ -1,7 +1,7 @@
 import React from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 
 interface CourseDetailsModalProps {
     isOpen: boolean;

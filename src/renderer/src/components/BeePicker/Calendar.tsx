@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import CalendarDaysIcon from "./icons/CalendarDaysIcon";
-import { Button } from "./ui/button";
-import XIcon from "../components/icons/XIcon";
+import CalendarDaysIcon from "../icons/CalendarDaysIcon";
+import { Button } from "../ui/button";
+import XIcon from "../icons/XIcon";
 import CourseDetailsModal from "./CourseDetailsModal";
-import {SelectedCourse } from "../../../types/Course";
+import {SelectedCourse } from "../../../../types/BeePickerTypes";
 
 interface CalendarProps {
   courses: SelectedCourse[];

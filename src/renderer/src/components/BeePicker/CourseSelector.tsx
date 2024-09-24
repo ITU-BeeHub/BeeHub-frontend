@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
-import { Button } from "./ui/button";
-import { Course } from "../../../types/Course";
+import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover.tsx";
+import { Button } from "../ui/button.tsx";
+import { Course } from "../../../../types/BeePickerTypes.tsx";
 import axios from "axios";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from "./ui/dropdown-menu.tsx";
+} from "../ui/dropdown-menu.tsx";
 
 interface CourseSelectorProps {
   onAddCourse: (course: Course) => void;

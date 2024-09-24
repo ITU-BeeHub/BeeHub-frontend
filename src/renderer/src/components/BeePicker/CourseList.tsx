@@ -1,7 +1,7 @@
 import React from "react";
-import { Button } from "../components/ui/button";
-import XIcon from "../components/icons/XIcon";
-import {SelectedCourse } from "../../../types/Course";
+import { Button } from "../ui/button";
+import XIcon from "../icons/XIcon";
+import {SelectedCourse } from "../../../../types/BeePickerTypes";
 
 interface CourseListProps {
   courses: SelectedCourse[];
@@ -9,11 +9,7 @@ interface CourseListProps {
   onRemoveReserveCourse: (parentCrn: string, reserveCrn: string) => void;
 }
 
-
-
 const CourseList: React.FC<CourseListProps> = ({ courses, onRemoveCourse, onRemoveReserveCourse }) => {
-
-
   const renderSelectedCourse = (selectedCourse: SelectedCourse, parentCrn?: string) => (
     <div key={selectedCourse.course.crn} className="border-b">
       <div className="grid grid-cols-[1fr_auto] items-center p-4">

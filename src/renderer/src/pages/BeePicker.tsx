@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import CourseSelector from "../components/CourseSelector";
-import CourseList from "../components/CourseList";
-import Calendar from "../components/Calendar";
+import CourseSelector from "../components/BeePicker/CourseSelector";
+import CourseList from "../components/BeePicker/CourseList";
+import Calendar from "../components/BeePicker/Calendar";
 import { Button } from "../components/ui/button";
-import { Course, SelectedCourse, CourseRequest } from "../../../types/Course";
+import { Course, SelectedCourse, CourseRequest } from "../../../types/BeePickerTypes";
 import { useAuth } from "../context/AuthContext";
 import XIcon from "../components/icons/XIcon";
 
