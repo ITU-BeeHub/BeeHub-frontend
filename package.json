@@ -96,8 +96,8 @@
         ]
       },
       {
-        "from": "../BeeHub-backend/beehub-mac-arm",
-        "to": "backend/beehub-mac-arm",
+        "from": "../BeeHub-backend/beehub-mac",
+        "to": "backend/beehub-mac",
         "filter": [
           "**/*"
         ]

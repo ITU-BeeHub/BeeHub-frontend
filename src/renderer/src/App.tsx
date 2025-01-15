@@ -1,18 +1,18 @@
-{/* REACT */}
+{/* REACT */ }
 import { HashRouter as Router, Route, Routes } from "react-router-dom";
 
-{/* CONTEXT */}
+{/* CONTEXT */ }
 import { AuthProvider } from "./context/AuthContext";
 import { VersionProvider, useVersion } from "./context/VersionContext";
 import { SettingsProvider } from "./context/SettingsContext";
 
-{/* COMPONENTS */}
+{/* COMPONENTS */ }
 import InternetConnectionChecker from "./components/InternetConnectionStartup";
 import InternetConnectionToast from "./components/InternetConnectionToast";
 import LoadingAnimation from "./components/LoadingAnimation";
 import Layout from "./components/Layout";
 
-{/* PAGES */}
+{/* PAGES */ }
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";

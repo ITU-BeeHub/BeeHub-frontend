@@ -20,10 +20,37 @@ interface ResponseItem {
 
 
 const BeePicker: React.FC = (): React.ReactNode => {
+  // Initialize selectedCourses with proper type checking
   const [selectedCourses, setSelectedCourses] = useState<SelectedCourse[]>(() => {
-    const savedCourses = localStorage.getItem("selectedCourses");
-    return savedCourses ? JSON.parse(savedCourses) : [];
+    try {
+      const savedCourses = localStorage.getItem("selectedCourses");
+      if (savedCourses) {
+        const parsed = JSON.parse(savedCourses);
+        // Validate that the parsed data contains the required properties
+        if (Array.isArray(parsed) && parsed.every(course =>
+          course &&
+          course.course &&
+          typeof course.course === 'object' &&
+          'dersAdi' in course.course &&
+          'gunAdiEN' in course.course
+        )) {
+          return parsed;
+        }
+      }
+      return [];
+    } catch (error) {
+      console.error("Error parsing saved courses:", error);
+      return [];
+    }
   });
+
+  // Add error boundary state
+  const [hasError, setHasError] = useState(false);
+
+  // Reset error state when navigating to the page
+  useEffect(() => {
+    setHasError(false);
+  }, []);
 
   const [reserveCourseToAdd, setReserveCourseToAdd] = useState<Course | null>(null);
 
@@ -51,7 +78,7 @@ const BeePicker: React.FC = (): React.ReactNode => {
     const savedResponse = localStorage.getItem("responseData");
     return savedResponse ? JSON.parse(savedResponse) : [];
   });
-  
+
   // New state to store the course name snapshots
   const [courseNameMap, setCourseNameMap] = useState<Record<string, string>>(() => {
     const savedMap = localStorage.getItem("courseNameMap");
@@ -112,14 +139,26 @@ const BeePicker: React.FC = (): React.ReactNode => {
     localStorage.setItem("groupIdCounter", JSON.stringify(groupIdCounter));
   }, [groupIdCounter]);
 
+  // Modify handleAddCourse to include validation
   const handleAddCourse = (course: Course) => {
+    if (!course || !course.dersAdi || !course.gunAdiEN) {
+      console.error("Invalid course data:", course);
+      setNotification("Invalid course data received");
+      return;
+    }
+
     const newGroupId = (groupIdCounter + 1) % 32; // Maximum 32 random colors (to prevent integer overflow)
     setGroupIdCounter(newGroupId);
     setSelectedCourses([...selectedCourses, { course, groupId: newGroupId }]);
     setCourseNameMap((prevMap) => ({ ...prevMap, [course.crn]: course.dersAdi }));
   };
 
+  // Add error handling for handleRemoveCourse
   const handleRemoveCourse = (crn: string) => {
+    if (!crn) {
+      console.error("Invalid CRN for removal");
+      return;
+    }
     setSelectedCourses(
       selectedCourses.filter((selectedCourse) => selectedCourse.course.crn !== crn)
     );
@@ -141,7 +180,13 @@ const BeePicker: React.FC = (): React.ReactNode => {
     return false;
   };
 
+  // Modify handleRemoveReserveCourse with validation
   const handleRemoveReserveCourse = (parentCrn: string, reserveCrn: string) => {
+    if (!parentCrn || !reserveCrn) {
+      console.error("Invalid CRNs for reserve removal");
+      return;
+    }
+
     const updatedCourses = [...selectedCourses];
     let reserveFound = false;
 
@@ -167,22 +212,22 @@ const BeePicker: React.FC = (): React.ReactNode => {
     const result: CourseRequest = {
       crn: selectedCourse.course.crn,
     };
-  
+
     if (selectedCourse.reserveCourse) {
       result.reserves = [serializeSelectedCourse(selectedCourse.reserveCourse)];
     }
-  
+
     return result;
   }
 
   const handleSubmit = async () => {
     setIsLoading(true); // Start loading
     setResponseData([]); // Clear previous response data
-  
+
     try {
       // Serialize selected courses into the new structure
       const courseRequests = selectedCourses.map(serializeSelectedCourse);
-  
+
       // Sending the request to the backend
       const response = await fetch("http://localhost:8080/beePicker/pick", {
         method: "POST",
@@ -192,7 +237,7 @@ const BeePicker: React.FC = (): React.ReactNode => {
         },
         body: JSON.stringify({ courses: courseRequests }),
       });
-  
+
       if (response.status === 401) {
         logout();
         navigate("/login");
@@ -205,15 +250,15 @@ const BeePicker: React.FC = (): React.ReactNode => {
         setIsLoading(false);
         return;
       }
-  
+
       const reader = response.body?.getReader();
       if (!reader) {
         throw new Error("No readable stream available");
       }
-  
+
       const decoder = new TextDecoder();
       let buffer = "";
-  
+
       const read = async () => {
         const { done, value } = await reader.read();
         if (done) {
@@ -221,16 +266,16 @@ const BeePicker: React.FC = (): React.ReactNode => {
           return;
         }
         buffer += decoder.decode(value, { stream: true });
-  
+
         let lines = buffer.split("\n");
         buffer = lines.pop() || "";
-  
+
         for (let line of lines) {
           if (line.trim()) {
             const parsedData: ResponseItem = JSON.parse(line);
             setResponseData((prevData: ResponseItem[]) => {
               const existingIndex = prevData.findIndex((item) => item.crn === parsedData.crn);
-        
+
               if (existingIndex === -1) {
                 // If the CRN doesn't exist, add it
                 return [...prevData, parsedData];
@@ -248,17 +293,17 @@ const BeePicker: React.FC = (): React.ReactNode => {
             });
           }
         }
-  
+
         await read();
       };
-  
+
       await read();
     } catch (error) {
       console.error("Error submitting course selection:", error);
       setIsLoading(false);
     }
   };
-  
+
   const getCourseName = (crn: string) => {
     return courseNameMap[crn] || "Unknown Course"; // Retrieve from snapshot map
   };
@@ -274,7 +319,13 @@ const BeePicker: React.FC = (): React.ReactNode => {
     }
   };
 
+  // Add validation in handleSelectParentCourse
   const handleSelectParentCourse = (parentCrn: string) => {
+    if (!parentCrn || !reserveCourseToAdd) {
+      console.error("Invalid parent CRN or reserve course");
+      return;
+    }
+
     if (reserveCourseToAdd) {
       const updatedCourses = [...selectedCourses];
       let parentFound = false;
@@ -309,46 +360,61 @@ const BeePicker: React.FC = (): React.ReactNode => {
     }
   };
 
+  // Add error handling for the component
+  if (hasError) {
+    return (
+      <div className="p-4 text-red-600">
+        Something went wrong. Please try refreshing the page.
+      </div>
+    );
+  }
+
   return (
     <main className="flex-1 flex items-center justify-center p-4 lg:p-4">
       <div className="w-full max-w-full rounded-lg bg-white p-6 shadow">
-        <CourseSelector
-          onAddCourse={handleAddCourse}
-          onAddCourseAsReserve={handleAddCourseAsReserve}
-        />
+        {/* Wrap components with error checking */}
+        {selectedCourses && Array.isArray(selectedCourses) ? (
+          <>
+            <CourseSelector
+              onAddCourse={handleAddCourse}
+              onAddCourseAsReserve={handleAddCourseAsReserve}
+            />
 
-        <CourseList
-          courses={selectedCourses}
-          onRemoveCourse={handleRemoveCourse}
-          onRemoveReserveCourse={handleRemoveReserveCourse}
-        />
+            <CourseList
+              courses={selectedCourses}
+              onRemoveCourse={handleRemoveCourse}
+              onRemoveReserveCourse={handleRemoveReserveCourse}
+            />
 
-        {reserveCourseToAdd && (
-          <div className="fixed bottom-8 right-8 bg-white p-4 rounded-lg shadow-lg max-w-sm w-full z-50 border border-gray-300">
-            <h2 className="text-lg font-semibold text-[#0372CE] mb-2">Assign Reserve Course</h2>
-            <p className="text-sm text-gray-700">
-              Please select a course from your schedule to assign the reserve course "
-              <span className="font-bold">{reserveCourseToAdd.dersAdi}</span>" to.
-            </p>
-            <div className="mt-4 flex justify-end space-x-2">
-              <Button
-                className="bg-[#FDC003] text-[#0372CE] px-4 py-2 font-bold rounded hover:bg-[#fdc003d9]"
-                onClick={() => setReserveCourseToAdd(null)}
-              >
-                Cancel
-              </Button>
-            </div>
-          </div>
+            {reserveCourseToAdd && (
+              <div className="fixed bottom-8 right-8 bg-white p-4 rounded-lg shadow-lg max-w-sm w-full z-50 border border-gray-300">
+                <h2 className="text-lg font-semibold text-[#0372CE] mb-2">Assign Reserve Course</h2>
+                <p className="text-sm text-gray-700">
+                  Please select a course from your schedule to assign the reserve course "
+                  <span className="font-bold">{reserveCourseToAdd.dersAdi}</span>" to.
+                </p>
+                <div className="mt-4 flex justify-end space-x-2">
+                  <Button
+                    className="bg-[#FDC003] text-[#0372CE] px-4 py-2 font-bold rounded hover:bg-[#fdc003d9]"
+                    onClick={() => setReserveCourseToAdd(null)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            <Calendar
+              courses={selectedCourses}
+              onRemoveCourse={handleRemoveCourse}
+              onRemoveReserveCourse={handleRemoveReserveCourse}
+              onSelectParentCourse={handleSelectParentCourse}
+              selectingParentCourse={!!reserveCourseToAdd}
+            />
+          </>
+        ) : (
+          <div>Loading courses...</div>
         )}
-
-
-        <Calendar
-          courses={selectedCourses}
-          onRemoveCourse={handleRemoveCourse}
-          onRemoveReserveCourse={handleRemoveReserveCourse}
-          onSelectParentCourse={handleSelectParentCourse}
-          selectingParentCourse={!!reserveCourseToAdd}
-        />
 
         <Button
           className="mt-6 w-full bg-[#FDC003] text-[#0372CE] font-bold hover:bg-[#fdc003d9] flex justify-center items-center"
@@ -361,7 +427,7 @@ const BeePicker: React.FC = (): React.ReactNode => {
             "Submit Course Selection"
           )}
         </Button>
-        
+
         {responseData && responseData.length > 0 && (
           <div className="mt-6 bg-gray-100 p-4 rounded-lg">
             <h3 className="text-lg font-semibold text-gray-700">Course Selection Results:</h3>
@@ -372,9 +438,8 @@ const BeePicker: React.FC = (): React.ReactNode => {
                     CRN: {response.crn} - {getCourseName(response.crn)}
                   </h4>
                   <p
-                    className={`text-sm ${
-                      response.result.statusCode === 0 ? "text-green-600" : "text-red-600"
-                    }`}
+                    className={`text-sm ${response.result.statusCode === 0 ? "text-green-600" : "text-red-600"
+                      }`}
                   >
                     {response.result.resultData || "No result data available"}
                   </p>

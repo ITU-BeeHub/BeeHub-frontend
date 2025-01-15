@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from "./ui/dropdown-menu.tsx";
+} from "./ui/dropdown-menu";
 
 interface CourseSelectorProps {
   onAddCourse: (course: Course) => void;
@@ -28,7 +28,7 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({
   // Popover'ların açık/kapalı durumunu yönetmek için state
   const [isGroupPopoverOpen, setIsGroupPopoverOpen] = useState(false);
   const [isCodePopoverOpen, setIsCodePopoverOpen] = useState(false);
-  const [isCRNPopoverOpen, setIsCRNPopoverOpen] = useState(false);  
+  const [isCRNPopoverOpen, setIsCRNPopoverOpen] = useState(false);
 
   // Search state for filtering
   const [groupSearchQuery, setGroupSearchQuery] = useState<string>("");
@@ -96,8 +96,8 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({
         .map((course) => course["dersKodu"].substring(0, 3))
     )
   )
-  .filter(group => group !== undefined && group.toLowerCase().includes(groupSearchQuery.toLowerCase()))
-  .sort();
+    .filter(group => group !== undefined && group.toLowerCase().includes(groupSearchQuery.toLowerCase()))
+    .sort();
 
   // Filtering by specific dersKodu within the selected group and applying search query
   const filteredCoursesByCode = filteredCoursesByGroup
@@ -107,15 +107,15 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({
   const filteredUniqueCourses = Array.from(
     new Set(filteredCoursesByGroup.map((course) => course["dersKodu"]))
   )
-  .map((uniqueCode) => filteredCoursesByGroup.find(course => course["dersKodu"] === uniqueCode))
-  .filter(course => course !== undefined && (course?.dersKodu?.toLowerCase() + " - " + course?.dersAdi?.toLowerCase()).includes(codeSearchQuery.toLowerCase())) // Filter by search
-  .sort((a, b) => {
-    if (a && b) { // Ensure both a and b are not undefined
-      if (a["dersKodu"] < b["dersKodu"]) return -1;
-      if (a["dersKodu"] > b["dersKodu"]) return 1;
-    }
-    return 0; // Treat undefined cases as equal
-  });
+    .map((uniqueCode) => filteredCoursesByGroup.find(course => course["dersKodu"] === uniqueCode))
+    .filter(course => course !== undefined && (course?.dersKodu?.toLowerCase() + " - " + course?.dersAdi?.toLowerCase()).includes(codeSearchQuery.toLowerCase())) // Filter by search
+    .sort((a, b) => {
+      if (a && b) { // Ensure both a and b are not undefined
+        if (a["dersKodu"] < b["dersKodu"]) return -1;
+        if (a["dersKodu"] > b["dersKodu"]) return 1;
+      }
+      return 0; // Treat undefined cases as equal
+    });
 
   const handleSelectCourseGroup = (group: string) => {
     setSelectedCourseGroup(group);
@@ -161,7 +161,7 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({
       setSelectedCRN(null);
     }
   };
-  
+
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between flex-wrap">
