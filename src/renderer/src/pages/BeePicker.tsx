@@ -378,6 +378,7 @@ const BeePicker: React.FC = (): React.ReactNode => {
             <CourseSelector
               onAddCourse={handleAddCourse}
               onAddCourseAsReserve={handleAddCourseAsReserve}
+              existingCourses={selectedCourses.map(sc => sc.course)}
             />
 
             <CourseList
