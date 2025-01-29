@@ -6,12 +6,20 @@ interface VersionContextType {
   isVersionValid: boolean;
   loading: boolean;
   backendAvailable: boolean;
+  currentVersion: string;
+  backendVersion: string | null;
+  forceUpdate: boolean;
+  setForceUpdate: (force: boolean) => void;
 }
 
 const VersionContext = createContext<VersionContextType>({
   isVersionValid: false,
   loading: true,
   backendAvailable: true,
+  currentVersion: VERSION,
+  backendVersion: null,
+  forceUpdate: false,
+  setForceUpdate: () => { },
 });
 
 export const useVersion = () => useContext(VersionContext);
@@ -19,26 +27,30 @@ export const useVersion = () => useContext(VersionContext);
 export const VersionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isVersionValid, setIsVersionValid] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [backendAvailable, setBackendAvailable] = useState(false);  // Initially set to false
+  const [backendAvailable, setBackendAvailable] = useState(false);
+  const [backendVersion, setBackendVersion] = useState<string | null>(null);
+  const [forceUpdate, setForceUpdate] = useState(false);
   const navigate = useNavigate();
 
   const checkVersion = async () => {
     try {
       const response = await fetch("http://localhost:8080/version");
       if (response.ok) {
-        const { version: backendVersion } = await response.json();
-        if (backendVersion === VERSION) {
+        const data = await response.json();
+        setBackendVersion(data.version);
+        setBackendAvailable(true);
+
+        if (data.version === VERSION) {
           setIsVersionValid(true);
-          setBackendAvailable(true);  // Backend is now available
-        } else {
-          navigate("/version-error");
+        } else if (!forceUpdate) {
+          navigate("/version-mismatch");
         }
       } else {
         throw new Error("Backend not available");
       }
     } catch (error) {
       console.error("Error checking app version:", error);
-      setBackendAvailable(false);  // Backend still not available
+      setBackendAvailable(false);
     } finally {
       setLoading(false);
     }
@@ -47,17 +59,27 @@ export const VersionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   useEffect(() => {
     const interval = setInterval(() => {
       if (!backendAvailable) {
-        checkVersion();  // Keep checking as long as the backend is not available
+        checkVersion();
       } else {
-        clearInterval(interval);  // Stop checking once the backend becomes available
+        clearInterval(interval);
       }
-    }, 5000);  // Retry every 5 seconds
+    }, 5000);
 
-    return () => clearInterval(interval);  // Clear interval on component unmount
-  }, [backendAvailable, navigate]);
+    return () => clearInterval(interval);
+  }, [backendAvailable, forceUpdate]);
 
   return (
-    <VersionContext.Provider value={{ isVersionValid, loading, backendAvailable }}>
+    <VersionContext.Provider
+      value={{
+        isVersionValid,
+        loading,
+        backendAvailable,
+        currentVersion: VERSION,
+        backendVersion,
+        forceUpdate,
+        setForceUpdate
+      }}
+    >
       {children}
     </VersionContext.Provider>
   );

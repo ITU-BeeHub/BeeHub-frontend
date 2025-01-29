@@ -1,5 +1,5 @@
 {/* REACT */ }
-import { HashRouter as Router, Route, Routes } from "react-router-dom";
+import { HashRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 
 {/* CONTEXT */ }
 import { AuthProvider } from "./context/AuthContext";
@@ -11,6 +11,7 @@ import InternetConnectionChecker from "./components/InternetConnectionStartup";
 import InternetConnectionToast from "./components/InternetConnectionToast";
 import LoadingAnimation from "./components/LoadingAnimation";
 import Layout from "./components/Layout";
+import UpdateNotification from "./components/UpdateNotification";
 
 {/* PAGES */ }
 import Home from "./pages/Home";
@@ -28,11 +29,10 @@ import TermsOfService from "./pages/TermsOfService";
 import Contact from "./pages/Contact";
 
 import VersionError from "./pages/VersionError";
-
-
+import VersionMismatch from "./pages/VersionMismatch";
 
 function AppContent() {
-  const { isVersionValid, loading, backendAvailable } = useVersion();
+  const { isVersionValid, loading, backendAvailable, forceUpdate } = useVersion();
 
   if (loading) {
     return (
@@ -56,10 +56,11 @@ function AppContent() {
     );
   }
 
-  if (!isVersionValid) {
+  if (!isVersionValid && !forceUpdate) {
     return (
       <Routes>
-        <Route path="/version-error" element={<VersionError />} />
+        <Route path="/version-mismatch" element={<VersionMismatch />} />
+        <Route path="*" element={<Navigate to="/version-mismatch" replace />} />
       </Routes>
     );
   }
@@ -80,6 +81,7 @@ function AppContent() {
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/version-mismatch" element={<VersionMismatch />} />
       </Routes>
     </Layout>
   );
@@ -93,6 +95,7 @@ function App() {
           <SettingsProvider>
             <AuthProvider>
               <InternetConnectionToast>
+                <UpdateNotification />
                 <AppContent />
               </InternetConnectionToast>
             </AuthProvider>

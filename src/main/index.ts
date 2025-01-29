@@ -3,8 +3,12 @@ import { join } from 'path';
 import { electronApp, optimizer, is } from '@electron-toolkit/utils';
 import { spawn } from 'child_process';
 import fs from 'fs';
+import { AutoUpdater } from './services/AutoUpdater';
+
+const autoUpdater = new AutoUpdater();
 
 let backendProcess: any;
+let mainWindow: BrowserWindow | null = null;
 
 // Backend loglarını dosyaya yazmak için bir yol ekliyoruz
 const logFile = join(app.getPath('userData'), 'backend_log.txt');
@@ -15,10 +19,10 @@ function createWindow(): void {
   const iconPath = process.platform === 'win32'
     ? join(__dirname, '../../src/renderer/src/assets/icons/icon.png')
     : process.platform === 'darwin'
-    ? join(__dirname, '../../src/renderer/src/assets/icons/icon.icns')
-    : join(__dirname, '../../src/renderer/src/assets/icons/icon.png');
+      ? join(__dirname, '../../src/renderer/src/assets/icons/icon.icns')
+      : join(__dirname, '../../src/renderer/src/assets/icons/icon.png');
 
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 900, // Default width
     height: 670, // Default height
     minWidth: 300, // Minimum width
@@ -33,8 +37,8 @@ function createWindow(): void {
   });
 
   mainWindow.on('ready-to-show', () => {
-    mainWindow.maximize(); // Maximize the window when created
-    mainWindow.show(); // Show the window when it's ready
+    mainWindow?.maximize(); // Maximize the window when created
+    mainWindow?.show(); // Show the window when it's ready
   });
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -123,6 +127,48 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
+
+// Update IPC handlers
+ipcMain.handle('check-for-updates', async () => {
+  if (!is.dev) {
+    try {
+      const response = await fetch('http://localhost:8080/api/version');
+      const versionInfo = await response.json();
+      return versionInfo;
+    } catch (error) {
+      console.error('Error checking for updates:', error);
+      throw error;
+    }
+  }
+});
+
+ipcMain.handle('start-update', async () => {
+  try {
+    mainWindow?.webContents.send('download-progress', { percent: 0 });
+
+    console.log('Starting download...');
+    const installerPath = await autoUpdater.downloadUpdate();
+    console.log('Download completed:', installerPath);
+
+    mainWindow?.webContents.send('download-progress', { percent: 100 });
+    mainWindow?.webContents.send('update-downloaded');
+
+    console.log('Installing update...');
+    await autoUpdater.installUpdate(installerPath);
+    console.log('Installation initiated');
+
+    autoUpdater.cleanupTempFiles();
+  } catch (error: unknown) {
+    console.error('Error during update:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    mainWindow?.webContents.send('update-error', errorMessage);
+    throw error;
+  }
+});
+
+ipcMain.handle('install-update', () => {
+  autoUpdater.quitAndInstall(false, true)
+})
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
