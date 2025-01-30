@@ -6,6 +6,8 @@ export interface Course {
   "bitisSaati": string;
   "crn": string;
   "dersAdi": string;
+  "ogretimUyesi"?: string;
+  "saatAraligi"?: string;
   "dersBransKoduId": string;
   "dersKodu": string;
   "dersTanimiId": string;
