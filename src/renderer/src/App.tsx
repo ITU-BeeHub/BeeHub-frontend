@@ -27,6 +27,8 @@ import Contact from "./pages/Contact";
 
 import VersionError from "./pages/VersionError";
 import VersionMismatch from "./pages/VersionMismatch";
+import { NotificationProvider } from "./context/NotificationContext";
+import NotificationPopup from "./components/NotificationPopup";
 
 function AppContent() {
   const { isVersionValid, loading, backendAvailable, forceUpdate } = useVersion();
@@ -88,10 +90,13 @@ function App() {
         <VersionProvider>
           <SettingsProvider>
             <AuthProvider>
-              <InternetConnectionToast>
-                <UpdateNotification />
-                <AppContent />
-              </InternetConnectionToast>
+              <NotificationProvider>
+                <InternetConnectionToast>
+                  <UpdateNotification />
+                  <NotificationPopup />
+                  <AppContent />
+                </InternetConnectionToast>
+              </NotificationProvider>
             </AuthProvider>
           </SettingsProvider>
         </VersionProvider>

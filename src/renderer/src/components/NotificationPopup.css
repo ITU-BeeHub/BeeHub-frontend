@@ -1,0 +1,112 @@
+/* src/components/NotificationPopup.css */
+.notification-popup {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-120%);
+    min-width: 300px;
+    max-width: 380px;
+    background: var(--background-color, #ffffff);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.notification-popup.visible {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+.notification-popup.hidden {
+    transform: translateX(-50%) translateY(-120%);
+    opacity: 0;
+}
+
+.notification-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-weight: bold;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-content h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary, #1a1a1a);
+}
+
+.notification-content p {
+    margin: 4px 0 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary, #666666);
+}
+
+.notification-close {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary, #666666);
+    font-size: 1.5rem;
+    line-height: 1;
+    padding: 4px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.notification-close:hover {
+    opacity: 1;
+}
+
+/* Type-specific styles */
+.notification-popup.success .notification-icon {
+    background-color: var(--success-light, #e6f4ea);
+    color: var(--success, #34a853);
+}
+
+.notification-popup.error .notification-icon {
+    background-color: var(--error-light, #fde7e7);
+    color: var(--error, #ea4335);
+}
+
+.notification-popup.warning .notification-icon {
+    background-color: var(--warning-light, #fff3e0);
+    color: var(--warning, #fbbc04);
+}
+
+.notification-popup.info .notification-icon {
+    background-color: var(--info-light, #e8f4fd);
+    color: var(--info, #4285f4);
+}
+
+@media (max-width: 480px) {
+    .notification-popup {
+        min-width: auto;
+        max-width: calc(100% - 48px);
+        top: 16px;
+        left: 24px;
+        right: 24px;
+        transform: translateY(-120%);
+    }
+
+    .notification-popup.visible {
+        transform: translateY(0);
+    }
+
+    .notification-popup.hidden {
+        transform: translateY(-120%);
+    }
+}
