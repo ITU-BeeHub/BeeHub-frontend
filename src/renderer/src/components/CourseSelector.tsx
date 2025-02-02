@@ -336,7 +336,7 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({
     <PopoverContent
       className="p-0 overflow-hidden"
       style={{
-        width: Math.max(crnTriggerRef.current?.offsetWidth || 0, 300),
+        width: Math.max(crnTriggerRef.current?.offsetWidth || 0, 400), // Changed from 300 to 400
       }}
       align="start"
     >
