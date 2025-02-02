@@ -1,10 +1,12 @@
 import { app } from 'electron';
 import fs from 'fs';
 import path from 'path';
-import { execFile } from 'child_process';
 import axios from 'axios';
 import { exec } from 'child_process';
 import sudo from 'sudo-prompt';
+import { promisify } from 'util';
+
+const execPromise = promisify(exec);
 
 export class AutoUpdater {
     private tempDir: string;
@@ -66,11 +68,58 @@ export class AutoUpdater {
         });
     }
 
+    private async mountDmg(dmgPath: string): Promise<string> {
+        const { stdout } = await execPromise(`hdiutil attach "${dmgPath}" -nobrowse`);
+        const mountPath = stdout.split('\n')
+            .filter(line => line.includes('/Volumes/'))
+            .pop()
+            ?.split('/Volumes/')[1]
+            .trim();
+        
+        if (!mountPath) throw new Error('Failed to mount DMG');
+        return `/Volumes/${mountPath}`;
+    }
+
+    private async unmountDmg(volumePath: string): Promise<void> {
+        await execPromise(`hdiutil detach "${volumePath}" -force`);
+    }
+
+    private async updateMacApp(volumePath: string): Promise<void> {
+        const appName = 'BeeHub.app';
+        const sourceApp = path.join(volumePath, appName);
+        const currentApp = app.getPath('exe').replace(/\/Contents\/MacOS\/.*$/, '');
+        
+        if (!fs.existsSync(sourceApp)) {
+            throw new Error('Update package is invalid');
+        }
+
+        const updateScript = `
+            rm -rf "${currentApp}" && 
+            cp -R "${sourceApp}" "${path.dirname(currentApp)}/" && 
+            touch "${currentApp}"
+        `;
+
+        return new Promise((resolve, reject) => {
+            sudo.exec(updateScript, { name: 'BeeHub Updater' }, (error) => {
+                if (error) reject(error);
+                else resolve();
+            });
+        });
+    }
+
     async installUpdate(installerPath: string): Promise<void> {
         try {
-            await this.elevateAndInstall(installerPath);
-            // Kurulum başladıktan sonra uygulamayı kapat
-            setTimeout(() => app.quit(), 1000);
+            if (process.platform === 'darwin') {
+                const volumePath = await this.mountDmg(installerPath);
+                await this.updateMacApp(volumePath);
+                await this.unmountDmg(volumePath);
+                setTimeout(() => app.relaunch(), 1000);
+                setTimeout(() => app.quit(), 2000);
+            } else {
+                // Windows logic remains the same
+                await this.elevateAndInstall(installerPath);
+                setTimeout(() => app.quit(), 1000);
+            }
         } catch (error) {
             console.error('Installation error:', error);
             throw error;

@@ -146,17 +146,13 @@ ipcMain.handle('start-update', async () => {
   try {
     mainWindow?.webContents.send('download-progress', { percent: 0 });
 
-    console.log('Starting download...');
     const installerPath = await autoUpdater.downloadUpdate();
-    console.log('Download completed:', installerPath);
-
     mainWindow?.webContents.send('download-progress', { percent: 100 });
     mainWindow?.webContents.send('update-downloaded');
 
-    console.log('Installing update...');
     await autoUpdater.installUpdate(installerPath);
-    console.log('Installation initiated');
-
+    
+    // Cleanup will happen automatically before app quits
     autoUpdater.cleanupTempFiles();
   } catch (error: unknown) {
     console.error('Error during update:', error);
