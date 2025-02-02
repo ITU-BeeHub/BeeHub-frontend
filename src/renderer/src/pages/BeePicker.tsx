@@ -417,14 +417,14 @@ const BeePicker: React.FC = (): React.ReactNode => {
         )}
 
         <Button
-          className="mt-6 w-full bg-[#FDC003] text-[#0372CE] font-bold hover:bg-[#fdc003d9] flex justify-center items-center"
+          className="mt-6 w-full bg-[#FDC003] text-[#0372CE] font-bold hover:bg-[#fdc003d9] flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={handleSubmit}
-          disabled={isLoading} // Disable the button when loading
+          disabled={isLoading || selectedCourses.length === 0} // Add condition to check if there are no selected courses
         >
           {isLoading ? (
             <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-white"></div>
           ) : (
-            "Submit Course Selection"
+            selectedCourses.length === 0 ? "Please select courses first" : "Submit Course Selection"
           )}
         </Button>
 
