@@ -112,6 +112,11 @@ const BeePicker: React.FC = (): React.ReactNode => {
 
   useEffect(() => {
     if (!isLoggedIn) {
+      // Kullanıcı çıkış yaptığında tüm local storage verilerini temizle
+      localStorage.removeItem("selectedCourses");
+      localStorage.removeItem("responseData");
+      localStorage.removeItem("courseNameMap");
+      localStorage.removeItem("groupIdCounter");
       navigate("/login");
     }
   }, [isLoggedIn, navigate]);

@@ -42,11 +42,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = () => {
-    setIsLoggedIn(false);
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('email');
-    localStorage.removeItem('password');
+  const logout = async () => {
+    try {
+      // Backend'e logout bilgisi gönder
+      await axios.post('http://localhost:8080/auth/logout', {}, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      }).catch(() => {
+        // Hata olsa bile devam et
+        console.log('Logout request failed, clearing local data anyway');
+      });
+    } finally {
+      setIsLoggedIn(false);
+      localStorage.clear();
+
+      // Axios headers'ı temizle
+      delete axios.defaults.headers.common['Authorization'];
+
+      // Clear all caches and states
+      window.dispatchEvent(new Event('clearState')); // Custom event to clear states
+    }
   };
 
   useEffect(() => {

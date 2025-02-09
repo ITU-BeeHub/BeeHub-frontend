@@ -19,8 +19,11 @@ const Profile: React.FC = () => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchProfile = async () => {
       try {
         const response = await fetch('http://localhost:8080/auth/profile', {
@@ -31,45 +34,99 @@ const Profile: React.FC = () => {
           },
         });
 
+        if (!isMounted) return;
+
         if (response.status === 401) {
-          logout();
-          navigate('/login');
+          // Sadece açıkça unauthorized olduğunda logout yap
+          const data = await response.json();
+          if (data.error === "unauthenticated" || data.error === "session expired") {
+            await logout();
+            navigate('/login');
+          }
         } else if (response.ok) {
           const data: ProfileData = await response.json();
-          setProfile(data);
+          if (data.email === "" && data.photo === "") {
+            // Geçersiz profil verisi
+            setError('Invalid profile data');
+            await logout();
+            navigate('/login');
+          } else {
+            setProfile(data);
+          }
         } else {
           throw new Error('Failed to fetch profile data');
         }
       } catch (err) {
+        if (!isMounted) return;
         setError('Error fetching profile data');
         console.error('Error fetching profile:', err);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchProfile();
+
+    return () => {
+      isMounted = false;
+    };
   }, [logout, navigate]);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
+  const handleLogout = async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="flex flex-col justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
+        <button
+          onClick={handleLogout}
+          className="mt-4 bg-red-500 text-white px-6 py-2 rounded-lg shadow hover:bg-red-600"
+        >
+          Log Out
+        </button>
       </div>
     );
   }
 
   if (error) {
-    return <div className="text-center text-red-500 py-20">{error}</div>;
+    return (
+      <div className="flex flex-col justify-center items-center min-h-screen">
+        <div className="text-center text-red-500 mb-4">{error}</div>
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 text-white px-6 py-2 rounded-lg shadow hover:bg-red-600"
+        >
+          Log Out
+        </button>
+      </div>
+    );
   }
 
   if (!profile) {
-    return <div className="text-center text-xl py-20">No profile data available.</div>;
+    return (
+      <div className="flex flex-col justify-center items-center min-h-screen">
+        <div className="text-center text-xl mb-4">No profile data available.</div>
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 text-white px-6 py-2 rounded-lg shadow hover:bg-red-600"
+        >
+          Log Out
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -111,8 +168,8 @@ const Profile: React.FC = () => {
       </div>
 
       <div className="mt-8 text-center">
-        <button 
-          onClick={handleLogout} 
+        <button
+          onClick={handleLogout}
           className="bg-red-500 text-white px-6 py-2 rounded-lg shadow hover:bg-red-600"
         >
           Log Out

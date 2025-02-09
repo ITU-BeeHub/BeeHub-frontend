@@ -22,7 +22,7 @@ const NotificationPopup: React.FC<NotificationProps> = ({
         // Only show notifications on home page
         if (location.pathname !== '/') {
             setIsVisible(false);
-            return;
+            return undefined;
         }
 
         if (currentNotification) {
@@ -36,6 +36,7 @@ const NotificationPopup: React.FC<NotificationProps> = ({
             }, duration);
             return () => clearTimeout(timer);
         }
+        return undefined;
     }, [currentNotification, duration, location.pathname]);
 
     if (!currentNotification || location.pathname !== '/') return null;
