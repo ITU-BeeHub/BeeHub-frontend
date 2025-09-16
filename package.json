@@ -1,9 +1,9 @@
 {
   "name": "bee",
   "private": true,
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "BeeHub - The Ultimate Platform for Istanbul Technical University (ITU) Students",
-  "author": "BeeHub Team <info@beehubapp.com>",
+  "author": "BeeHub Team",
   "type": "module",
   "main": "./out/main/index.js",
   "scripts": {
