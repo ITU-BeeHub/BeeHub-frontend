@@ -10,12 +10,10 @@ import XIcon from "../components/icons/XIcon";
 
 interface ResponseItem {
   crn: string;
-  result: {
-    statusCode: number;
-    resultCode: string;
-    resultData: string;
-    [key: string]: any; // Include any additional properties
-  };
+  statusCode: number;
+  resultCode: string;
+  resultData: string;
+  [key: string]: any; // Include any additional properties
 }
 
 
@@ -250,59 +248,46 @@ const BeePicker: React.FC = (): React.ReactNode => {
         return;
       } else if (!response.ok) {
         const errorData = await response.json();
-        setResponseData([errorData]);
+        setNotification(`Error: ${errorData.error || 'Unknown error occurred'}`);
         console.error("Error picking courses:", errorData);
         setIsLoading(false);
         return;
       }
 
-      const reader = response.body?.getReader();
-      if (!reader) {
-        throw new Error("No readable stream available");
-      }
+      // Since backend returns normal JSON, not streaming
+      const responseData = await response.json();
 
-      const decoder = new TextDecoder();
-      let buffer = "";
+      console.log("Received response from backend:", responseData);
 
-      const read = async () => {
-        const { done, value } = await reader.read();
-        if (done) {
-          setIsLoading(false);
-          return;
-        }
-        buffer += decoder.decode(value, { stream: true });
+      // Convert backend response format to frontend format
+      if (typeof responseData === 'object' && responseData !== null) {
+        const responseItems: ResponseItem[] = [];
 
-        let lines = buffer.split("\n");
-        buffer = lines.pop() || "";
-
-        for (let line of lines) {
-          if (line.trim()) {
-            const parsedData: ResponseItem = JSON.parse(line);
-            setResponseData((prevData: ResponseItem[]) => {
-              const existingIndex = prevData.findIndex((item) => item.crn === parsedData.crn);
-
-              if (existingIndex === -1) {
-                // If the CRN doesn't exist, add it
-                return [...prevData, parsedData];
-              } else {
-                const existingItem = prevData[existingIndex];
-                // If the new response is successful and the existing one isn't, replace the old one
-                if (parsedData.result.statusCode === 0 && existingItem.result.statusCode !== 0) {
-                  const updatedData = [...prevData];
-                  updatedData[existingIndex] = parsedData;
-                  return updatedData;
-                }
-                // If the existing one is successful or both failed, keep the existing one
-                return prevData;
-              }
-            });
+        // Handle the map structure from backend
+        Object.keys(responseData).forEach(crn => {
+          const courseResult = responseData[crn];
+          if (courseResult && typeof courseResult === 'object') {
+            const responseItem = {
+              crn: crn,
+              statusCode: courseResult.statusCode || 0,
+              resultCode: courseResult.resultCode || '',
+              resultData: courseResult.resultData || 'No result data available',
+              ...courseResult // Include any additional properties
+            };
+            responseItems.push(responseItem);
+            console.log(`Processed course result for CRN ${crn}:`, responseItem);
           }
-        }
+        });
 
-        await read();
-      };
+        console.log("All processed response items:", responseItems);
 
-      await read();
+        // Update state with converted response items
+        setResponseData(responseItems);
+        setIsLoading(false);
+      } else {
+        console.error("Unexpected response format:", responseData);
+        setIsLoading(false);
+      }
     } catch (error) {
       console.error("Error submitting course selection:", error);
       setIsLoading(false);
@@ -435,18 +420,31 @@ const BeePicker: React.FC = (): React.ReactNode => {
 
         {responseData && responseData.length > 0 && (
           <div className="mt-6 bg-gray-100 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold text-gray-700">Course Selection Results:</h3>
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">Course Selection Results:</h3>
             <div className="mt-4 space-y-4">
               {responseData.map((response: ResponseItem) => (
-                <div key={response.crn} className="border-b border-gray-300 py-2">
-                  <h4 className="font-semibold text-blue-600">
+                <div key={response.crn} className={`border-l-4 p-4 rounded-lg ${response.statusCode === 0
+                  ? "border-green-500 bg-green-50"
+                  : "border-red-500 bg-red-50"
+                  }`}>
+                  <h4 className="font-semibold text-blue-600 mb-2">
                     CRN: {response.crn} - {getCourseName(response.crn)}
                   </h4>
-                  <p
-                    className={`text-sm ${response.result.statusCode === 0 ? "text-green-600" : "text-red-600"
-                      }`}
-                  >
-                    {response.result.resultData || "No result data available"}
+                  <div className="flex items-center mb-2">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${response.statusCode === 0
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
+                      }`}>
+                      {response.statusCode === 0 ? "✓ Success" : "✗ Failed"}
+                    </span>
+                    {response.resultCode && (
+                      <span className="ml-2 text-xs text-gray-500">
+                        Code: {response.resultCode}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-700">
+                    {response.resultData || "No result data available"}
                   </p>
                 </div>
               ))}
