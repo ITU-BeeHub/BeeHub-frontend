@@ -15,7 +15,7 @@ const Home: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <Link to="/beepicker" className="hover:shadow-lg transition-shadow duration-300">
             <div className="bg-white p-6 rounded-lg shadow-md text-center">
               <h3 className="text-2xl font-semibold text-[#0372CE] mb-4">BeePicker</h3>
@@ -28,50 +28,14 @@ const Home: React.FC = () => {
             </div>
           </Link>
 
-          <Link to="/beesync" className="hover:shadow-lg transition-shadow duration-300">
-            <div className="bg-white p-6 rounded-lg shadow-md text-center">
-              <h3 className="text-2xl font-semibold text-[#0372CE] mb-4">BeeSync</h3>
-              <p className="text-gray-600">
-                Sync your academic files and stay organized with BeeSync.
-              </p>
-              <Button className="mt-6 w-full bg-[#0372CE] text-white font-bold py-2">
-                Explore BeeSync
-              </Button>
-            </div>
-          </Link>
-
-          <Link to="/beecalendar" className="hover:shadow-lg transition-shadow duration-300">
-            <div className="bg-white p-6 rounded-lg shadow-md text-center">
-              <h3 className="text-2xl font-semibold text-[#0372CE] mb-4">BeeCalendar</h3>
-              <p className="text-gray-600">
-                Keep track of your tasks and deadlines with BeeCalendar.
-              </p>
-              <Button className="mt-6 w-full bg-[#0372CE] text-white font-bold py-2">
-                Check BeeCalendar
-              </Button>
-            </div>
-          </Link>
-
           <Link to="/beearchive" className="hover:shadow-lg transition-shadow duration-300">
             <div className="bg-white p-6 rounded-lg shadow-md text-center">
               <h3 className="text-2xl font-semibold text-[#0372CE] mb-4">BeeArchive</h3>
               <p className="text-gray-600">
-                Access and manage your past courses and notes with BeeArchive.
+                Access and share past exam questions with your fellow students.
               </p>
               <Button className="mt-6 w-full bg-[#0372CE] text-white font-bold py-2">
                 Visit BeeArchive
-              </Button>
-            </div>
-          </Link>
-
-          <Link to="/beechat" className="hover:shadow-lg transition-shadow duration-300">
-            <div className="bg-white p-6 rounded-lg shadow-md text-center">
-              <h3 className="text-2xl font-semibold text-[#0372CE] mb-4">BeeChat</h3>
-              <p className="text-gray-600">
-                Connect with your peers using BeeChat.
-              </p>
-              <Button className="mt-6 w-full bg-[#0372CE] text-white font-bold py-2">
-                Chat with BeeChat
               </Button>
             </div>
           </Link>

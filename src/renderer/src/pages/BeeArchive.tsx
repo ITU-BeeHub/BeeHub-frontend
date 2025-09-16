@@ -6,7 +6,7 @@ const BeeArchive: React.FC = () => {
   return (
     <Placeholder
       title="BeeArchive is Coming Soon!"
-      message="Archiving your university notes and assignments will soon be easier than ever!"
+      message="Share and access past exam questions with your fellow students. Build a collaborative exam archive together!"
     />
   );
 };
