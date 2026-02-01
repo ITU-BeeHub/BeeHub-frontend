@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Button } from "../components/ui/button";
+// import { Button } from "../components/ui/button";
 import BeakerIcon from "../components/icons/BeakerIcon";
 
 const Home: React.FC = () => {

@@ -21,8 +21,15 @@
     "postinstall": "electron-builder install-app-deps",
     "build:unpack": "npm run build && electron-builder --dir",
     "build:win": "npm run build && electron-builder --win",
+    "build:win-x64": "npm run build && electron-builder --win --x64",
+    "build:win-installer": "npm run build && electron-builder --win --x64",
     "build:mac": "electron-vite build && electron-builder --mac",
-    "build:linux": "electron-vite build && electron-builder --linux"
+    "build:mac-dmg": "npm run build && electron-builder --mac --arm64",
+    "build:installers": "npm run build:win-installer && npm run build:mac-dmg",
+    "build:mac-arm64": "npm run build && electron-builder --mac --arm64",
+    "build:mac-x64": "npm run build && electron-builder --mac --x64",
+    "build:linux": "electron-vite build && electron-builder --linux",
+    "build:all": "npm run build && electron-builder --win --mac --linux"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
@@ -60,7 +67,7 @@
     "@vitejs/plugin-react-swc": "^3.5.0",
     "autoprefixer": "^10.4.20",
     "concurrently": "^8.2.2",
-    "dmg-builder": "^26.7.0",
+    "dmg-builder": "^24.13.3",
     "electron": "^40.1.0",
     "electron-builder": "^26.7.0",
     "electron-vite": "^5.0.0",

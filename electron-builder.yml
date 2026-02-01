@@ -14,14 +14,27 @@ asarUnpack:
 win:
   executableName: beehub
   icon: "icon.ico"
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: zip
+      arch:
+        - x64
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
+  oneClick: false
+  allowToChangeInstallationDirectory: true
 mac:
-  icon: "src/renderer/src/assets/icon.icns"
+  icon: "build/icon.icns"
   entitlementsInherit: build/entitlements.mac.plist
+  target:
+    - target: dmg
+      arch:
+        - arm64
   extendInfo:
     #- NSCameraUsageDescription: Application requests access to the device's camera.
     #- NSMicrophoneUsageDescription: Application requests access to the device's microphone.
@@ -29,8 +42,25 @@ mac:
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
   notarize: false
 dmg:
-  artifactName: ${name}-${version}.${ext}
+  artifactName: ${name}-${version}-macos-${arch}.${ext}
+  title: ${productName} ${version}
+  icon: "build/icon.icns"
+  backgroundColor: "#ffffff"
+  iconSize: 100
+  iconTextSize: 12
+  window:
+    width: 540
+    height: 380
+  contents:
+    - x: 130
+      y: 220
+      type: file
+    - x: 410
+      y: 220
+      type: link
+      path: /Applications
 linux:
+  icon: "src/renderer/src/assets/icon.png"
   icon: "src/renderer/src/assets/icon.png"
   target:
     - AppImage
