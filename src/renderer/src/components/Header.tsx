@@ -1,17 +1,17 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { UserIcon } from "@heroicons/react/24/outline"; // Daha önce belirttiğimiz şekilde ekleyin veya manuel SVG kullanın
+import { UserIcon } from "@heroicons/react/24/outline";
 import BeakerIcon from "./icons/BeakerIcon";
 
 export default function Header() {
-  const { isLoggedIn } = useAuth(); // Kullanıcı giriş durumu
+  const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
 
   const handleProfileClick = () => {
     if (isLoggedIn) {
-      navigate("/profile"); // Giriş yapılmışsa profile yönlendir
+      navigate("/profile");
     } else {
-      navigate("/login"); // Giriş yapılmamışsa login sayfasına yönlendir
+      navigate("/login");
     }
   };
 

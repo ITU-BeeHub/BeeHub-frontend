@@ -1,34 +1,27 @@
-{/* REACT */ }
+// React
 import { HashRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 
-{/* CONTEXT */ }
+// Context
 import { AuthProvider } from "./context/AuthContext";
 import { VersionProvider, useVersion } from "./context/VersionContext";
 import { SettingsProvider } from "./context/SettingsContext";
+import { NotificationProvider } from "./context/NotificationContext";
 
-{/* COMPONENTS */ }
+// Components
 import InternetConnectionChecker from "./components/InternetConnectionStartup";
 import InternetConnectionToast from "./components/InternetConnectionToast";
 import LoadingAnimation from "./components/LoadingAnimation";
 import Layout from "./components/Layout";
 import UpdateNotification from "./components/UpdateNotification";
+import NotificationPopup from "./components/NotificationPopup";
 
-{/* PAGES */ }
-import Home from "./pages/Home";
+// Pages
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Beepicker from "./pages/BeePicker";
-import BeeArchive from './pages/BeeArchive';
 import Settings from "./pages/Settings";
-
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfService from "./pages/TermsOfService";
-import Contact from "./pages/Contact";
-
 import VersionError from "./pages/VersionError";
 import VersionMismatch from "./pages/VersionMismatch";
-import { NotificationProvider } from "./context/NotificationContext";
-import NotificationPopup from "./components/NotificationPopup";
 
 function AppContent() {
   const { isVersionValid, loading, backendAvailable, forceUpdate } = useVersion();
@@ -67,16 +60,12 @@ function AppContent() {
   return (
     <Layout>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Navigate to="/beepicker" replace />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/login" element={<Login />} />
         <Route path="/beepicker" element={<Beepicker />} />
-        <Route path="/beearchive" element={<BeeArchive />} />
-        <Route path="/version-error" element={<VersionError />} />
         <Route path="/settings" element={<Settings />} />
-        <Route path="/privacy" element={<PrivacyPolicy />} />
-        <Route path="/terms" element={<TermsOfService />} />
-        <Route path="/contact" element={<Contact />} />
+        <Route path="/version-error" element={<VersionError />} />
         <Route path="/version-mismatch" element={<VersionMismatch />} />
       </Routes>
     </Layout>
