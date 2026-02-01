@@ -10,10 +10,11 @@ import XIcon from "../components/icons/XIcon";
 
 interface ResponseItem {
   crn: string;
+  action?: string; // "add" veya "drop"
   statusCode: number;
   resultCode: string;
   resultData: string;
-  [key: string]: any; // Include any additional properties
+  [key: string]: any;
 }
 
 
@@ -77,6 +78,13 @@ const BeePicker: React.FC = (): React.ReactNode => {
     return savedResponse ? JSON.parse(savedResponse) : [];
   });
 
+  // State for courses to drop (SCRN)
+  const [dropCRNs, setDropCRNs] = useState<string[]>(() => {
+    const saved = localStorage.getItem("dropCRNs");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [dropCRNInput, setDropCRNInput] = useState<string>("");
+
   // New state to store the course name snapshots
   const [courseNameMap, setCourseNameMap] = useState<Record<string, string>>(() => {
     const savedMap = localStorage.getItem("courseNameMap");
@@ -110,11 +118,12 @@ const BeePicker: React.FC = (): React.ReactNode => {
 
   useEffect(() => {
     if (!isLoggedIn) {
-      // Kullanıcı çıkış yaptığında tüm local storage verilerini temizle
+      // Clear local data on logout
       localStorage.removeItem("selectedCourses");
       localStorage.removeItem("responseData");
       localStorage.removeItem("courseNameMap");
       localStorage.removeItem("groupIdCounter");
+      localStorage.removeItem("dropCRNs");
       navigate("/login");
     }
   }, [isLoggedIn, navigate]);
@@ -136,6 +145,11 @@ const BeePicker: React.FC = (): React.ReactNode => {
   useEffect(() => {
     localStorage.setItem("courseNameMap", JSON.stringify(courseNameMap));
   }, [courseNameMap]);
+
+  // Save dropCRNs to localStorage
+  useEffect(() => {
+    localStorage.setItem("dropCRNs", JSON.stringify(dropCRNs));
+  }, [dropCRNs]);
 
   // Save groupIdCounter to localStorage when it changes
   useEffect(() => {
@@ -211,7 +225,27 @@ const BeePicker: React.FC = (): React.ReactNode => {
     }
   };
 
-  function serializeSelectedCourse(selectedCourse: SelectedCourse): CourseRequest {
+  // Drop CRN handlers
+  const handleAddDropCRN = () => {
+    const crn = dropCRNInput.trim();
+    if (crn && !dropCRNs.includes(crn)) {
+      setDropCRNs([...dropCRNs, crn]);
+      setDropCRNInput("");
+    }
+  };
+
+  const handleRemoveDropCRN = (crn: string) => {
+    setDropCRNs(dropCRNs.filter(c => c !== crn));
+  };
+
+  const handleDropCRNKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddDropCRN();
+    }
+  };
+
+  const serializeSelectedCourse = (selectedCourse: SelectedCourse): CourseRequest => {
     const result: CourseRequest = {
       crn: selectedCourse.course.crn,
     };
@@ -221,24 +255,29 @@ const BeePicker: React.FC = (): React.ReactNode => {
     }
 
     return result;
-  }
+  };
 
   const handleSubmit = async () => {
-    setIsLoading(true); // Start loading
-    setResponseData([]); // Clear previous response data
+    setIsLoading(true);
+    setResponseData([]);
 
     try {
-      // Serialize selected courses into the new structure
+      // Build request payload - reserve-aware courses and SCRN list
       const courseRequests = selectedCourses.map(serializeSelectedCourse);
+      const payload = {
+        courses: courseRequests,
+        SCRN: dropCRNs,
+      };
 
-      // Sending the request to the backend
+      console.log("Sending request payload:", payload);
+
       const response = await fetch("http://localhost:8080/beePicker/pick", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify({ courses: courseRequests }),
+        body: JSON.stringify(payload),
       });
 
       if (response.status === 401) {
@@ -254,42 +293,40 @@ const BeePicker: React.FC = (): React.ReactNode => {
         return;
       }
 
-      // Since backend returns normal JSON, not streaming
       const responseData = await response.json();
-
       console.log("Received response from backend:", responseData);
 
-      // Convert backend response format to frontend format
       if (typeof responseData === 'object' && responseData !== null) {
         const responseItems: ResponseItem[] = [];
 
-        // Handle the map structure from backend
-        Object.keys(responseData).forEach(crn => {
-          const courseResult = responseData[crn];
+        Object.keys(responseData).forEach(key => {
+          const courseResult = responseData[key];
           if (courseResult && typeof courseResult === 'object') {
-            const responseItem = {
-              crn: crn,
+            // Extract actual CRN (remove "_drop" suffix if present)
+            const actualCrn = key.endsWith('_drop') ? key.replace('_drop', '') : key;
+            const action = courseResult.action || (key.endsWith('_drop') ? 'drop' : 'add');
+            
+            const responseItem: ResponseItem = {
+              crn: actualCrn,
+              action: action,
               statusCode: courseResult.statusCode || 0,
               resultCode: courseResult.resultCode || '',
               resultData: courseResult.resultData || 'No result data available',
-              ...courseResult // Include any additional properties
+              ...courseResult
             };
             responseItems.push(responseItem);
-            console.log(`Processed course result for CRN ${crn}:`, responseItem);
           }
         });
 
-        console.log("All processed response items:", responseItems);
-
-        // Update state with converted response items
+        console.log("Processed response items:", responseItems);
         setResponseData(responseItems);
-        setIsLoading(false);
       } else {
         console.error("Unexpected response format:", responseData);
-        setIsLoading(false);
       }
     } catch (error) {
       console.error("Error submitting course selection:", error);
+      setNotification("Connection error. Please try again.");
+    } finally {
       setIsLoading(false);
     }
   };
@@ -394,6 +431,54 @@ const BeePicker: React.FC = (): React.ReactNode => {
               </div>
             )}
 
+            {/* Drop Courses Section */}
+            <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                Courses to Drop
+              </h3>
+              <p className="text-sm text-gray-500 mb-3">
+                Enter the CRNs of the courses you want to drop.
+                These will be sent in the request under SCRN.
+              </p>
+              
+              <div className="flex gap-2 mb-3">
+                <input
+                  type="text"
+                  value={dropCRNInput}
+                  onChange={(e) => setDropCRNInput(e.target.value)}
+                  onKeyPress={handleDropCRNKeyPress}
+                  placeholder="Enter CRN"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0372CE] focus:border-transparent"
+                />
+                <Button
+                  onClick={handleAddDropCRN}
+                  className="bg-red-500 text-white hover:bg-red-600 px-4"
+                  disabled={!dropCRNInput.trim()}
+                >
+                  Add
+                </Button>
+              </div>
+
+              {dropCRNs.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {dropCRNs.map((crn) => (
+                    <span
+                      key={crn}
+                      className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm"
+                    >
+                      {crn}
+                      <button
+                        onClick={() => handleRemoveDropCRN(crn)}
+                        className="hover:text-red-900"
+                      >
+                        <XIcon className="h-3 w-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <Calendar
               courses={selectedCourses}
               onRemoveCourse={handleRemoveCourse}
@@ -409,32 +494,51 @@ const BeePicker: React.FC = (): React.ReactNode => {
         <Button
           className="mt-6 w-full bg-[#FDC003] text-[#0372CE] font-bold hover:bg-[#fdc003d9] flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={handleSubmit}
-          disabled={isLoading || selectedCourses.length === 0} // Add condition to check if there are no selected courses
+          disabled={isLoading || (selectedCourses.length === 0 && dropCRNs.length === 0)}
         >
           {isLoading ? (
             <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-white"></div>
           ) : (
-            selectedCourses.length === 0 ? "Please select courses first" : "Submit Course Selection"
+            selectedCourses.length === 0 && dropCRNs.length === 0
+              ? "Add a course to add or drop"
+              : `Submit (${selectedCourses.length} add, ${dropCRNs.length} drop)`
           )}
         </Button>
 
         {responseData && responseData.length > 0 && (
           <div className="mt-6 bg-gray-100 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Course Selection Results:</h3>
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">Results</h3>
             <div className="mt-4 space-y-4">
-              {responseData.map((response: ResponseItem) => (
-                <div key={response.crn} className={`border-l-4 p-4 rounded-lg ${response.statusCode === 0
-                  ? "border-green-500 bg-green-50"
-                  : "border-red-500 bg-red-50"
-                  }`}>
-                  <h4 className="font-semibold text-blue-600 mb-2">
-                    CRN: {response.crn} - {getCourseName(response.crn)}
-                  </h4>
+              {responseData.map((response: ResponseItem, index: number) => (
+                <div 
+                  key={`${response.crn}-${response.action || 'add'}-${index}`} 
+                  className={`border-l-4 p-4 rounded-lg ${
+                    response.statusCode === 0
+                      ? "border-green-500 bg-green-50"
+                      : "border-red-500 bg-red-50"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <h4 className="font-semibold text-blue-600">
+                      CRN: {response.crn}
+                    </h4>
+                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                      response.action === 'drop' 
+                        ? 'bg-orange-100 text-orange-700' 
+                        : 'bg-blue-100 text-blue-700'
+                    }`}>
+                      {response.action === 'drop' ? 'DROP' : 'ADD'}
+                    </span>
+                  </div>
+                  {getCourseName(response.crn) !== "Unknown Course" && (
+                    <p className="text-sm text-gray-600 mb-2">{getCourseName(response.crn)}</p>
+                  )}
                   <div className="flex items-center mb-2">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${response.statusCode === 0
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                      }`}>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      response.statusCode === 0
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-800"
+                    }`}>
                       {response.statusCode === 0 ? "✓ Success" : "✗ Failed"}
                     </span>
                     {response.resultCode && (
