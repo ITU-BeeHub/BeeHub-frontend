@@ -13,7 +13,8 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+FRONTEND_DIR="$(dirname "$SCRIPT_DIR")"
+ROOT_DIR="$(dirname "$FRONTEND_DIR")"
 
 echo -e "${GREEN}=== BeeHub Complete Build Process ===${NC}"
 echo "Root directory: $ROOT_DIR"
@@ -46,19 +47,19 @@ echo -e "${GREEN}All dependencies found!${NC}"
 # Build backend
 echo -e "${BLUE}=== Building Backend ===${NC}"
 cd "$ROOT_DIR/BeeHub-backend"
-chmod +x ../build-scripts/build-backend.sh
-../build-scripts/build-backend.sh
+chmod +x "$SCRIPT_DIR/build-backend.sh"
+"$SCRIPT_DIR/build-backend.sh"
 
 # Build frontend  
 echo -e "${BLUE}=== Building Frontend ===${NC}"
-cd "$ROOT_DIR"
-chmod +x build-scripts/build-frontend.sh
-build-scripts/build-frontend.sh
+cd "$FRONTEND_DIR"
+chmod +x "$SCRIPT_DIR/build-frontend.sh"
+"$SCRIPT_DIR/build-frontend.sh"
 
 echo -e "${GREEN}=== Build Process Complete! ===${NC}"
 echo -e "${YELLOW}Build artifacts:${NC}"
 echo "- Backend: $ROOT_DIR/BeeHub-backend/builds/"
-echo "- Frontend: $ROOT_DIR/BeeHub-frontend/dist/"
+echo "- Frontend: $FRONTEND_DIR/dist/"
 
 # Create release directory
 RELEASE_DIR="$ROOT_DIR/releases/$(date +%Y%m%d_%H%M%S)"
@@ -70,8 +71,8 @@ if [ -d "$ROOT_DIR/BeeHub-backend/builds" ]; then
     echo -e "${GREEN}Backend builds copied to release directory${NC}"
 fi
 
-if [ -d "$ROOT_DIR/BeeHub-frontend/dist" ]; then
-    cp -r "$ROOT_DIR/BeeHub-frontend/dist" "$RELEASE_DIR/frontend"  
+if [ -d "$FRONTEND_DIR/dist" ]; then
+    cp -r "$FRONTEND_DIR/dist" "$RELEASE_DIR/frontend"  
     echo -e "${GREEN}Frontend builds copied to release directory${NC}"
 fi
 

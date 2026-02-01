@@ -12,7 +12,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-cd "$(dirname "$0")/../BeeHub-frontend"
+cd "$(dirname "$0")/.."
 
 echo -e "${GREEN}Building BeeHub Frontend (Electron)${NC}"
 

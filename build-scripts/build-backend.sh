@@ -12,7 +12,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Navigate to backend directory
-cd "$(dirname "$0")/../BeeHub-backend"
+cd "$(dirname "$0")/../../BeeHub-backend"
 
 # Build directory
 BUILD_DIR="./builds"
@@ -50,6 +50,16 @@ for dir in "$BUILD_DIR"/*; do
     fi
 done
 
+# Copy binaries to root folder for frontend packaging (extraResources in package.json)
+echo -e "${YELLOW}Copying binaries to root folder for frontend packaging...${NC}"
+cp "$BUILD_DIR/windows-amd64/${BINARY_NAME}.exe" "./${BINARY_NAME}.exe" 2>/dev/null || true
+cp "$BUILD_DIR/darwin-arm64/${BINARY_NAME}" "./${BINARY_NAME}-mac-arm" 2>/dev/null || true
+cp "$BUILD_DIR/darwin-amd64/${BINARY_NAME}" "./${BINARY_NAME}-mac-x64" 2>/dev/null || true
+cp "$BUILD_DIR/linux-amd64/${BINARY_NAME}" "./${BINARY_NAME}-linux" 2>/dev/null || true
+
 echo -e "${GREEN}Backend builds completed successfully!${NC}"
 echo "Build outputs:"
 ls -la "$BUILD_DIR"
+echo ""
+echo "Root folder binaries (for frontend packaging):"
+ls -la ${BINARY_NAME}* 2>/dev/null || echo "No binaries found"

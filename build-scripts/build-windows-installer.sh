@@ -18,7 +18,12 @@ echo "Build environment: macOS"
 echo ""
 
 # Navigate to frontend directory
-cd "$(dirname "$0")/../BeeHub-frontend"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+FRONTEND_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+ROOT_DIR="$(cd "$FRONTEND_DIR/.." && pwd)"
+BACKEND_DIR="$ROOT_DIR/BeeHub-backend"
+
+cd "$FRONTEND_DIR"
 
 # Check dependencies
 echo -e "${YELLOW}Checking dependencies...${NC}"
@@ -31,6 +36,21 @@ if ! command -v npm >/dev/null 2>&1; then
     echo -e "${RED}NPM not found! Please install NPM first.${NC}"
     exit 1
 fi
+
+if ! command -v go >/dev/null 2>&1; then
+    echo -e "${RED}Go not found! Please install Go first.${NC}"
+    exit 1
+fi
+
+# Build backend for Windows
+echo -e "${YELLOW}Building backend for Windows x86-64...${NC}"
+cd "$BACKEND_DIR"
+GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o "beehub.exe" ./cmd/beeHub/main.go
+echo -e "${GREEN}✅ Backend built: beehub.exe${NC}"
+ls -lh beehub.exe
+
+# Return to frontend directory
+cd "$SCRIPT_DIR/.."
 
 # Install dependencies if needed
 if [ ! -d "node_modules" ]; then
