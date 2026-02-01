@@ -23,6 +23,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (response.status === 200) {
+        const token = response.data?.token;
+        if (token) {
+          localStorage.setItem('token', token);
+          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        }
         setIsLoggedIn(true);
         localStorage.setItem('isLoggedIn', 'true');
 
@@ -44,20 +49,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      // Backend'e logout bilgisi gönder
+      // Send logout to backend
       await axios.post('http://localhost:8080/auth/logout', {}, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       }).catch(() => {
-        // Hata olsa bile devam et
+        // Continue even if logout request fails
         console.log('Logout request failed, clearing local data anyway');
       });
     } finally {
       setIsLoggedIn(false);
       localStorage.clear();
 
-      // Axios headers'ı temizle
+      // Clear axios headers
       delete axios.defaults.headers.common['Authorization'];
 
       // Clear all caches and states
@@ -74,6 +79,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const decryptedPassword = CryptoJS.AES.decrypt(storedPassword, 'your-secret-key').toString(CryptoJS.enc.Utf8);
 
       login(decryptedEmail, decryptedPassword, true).catch(console.error);
+    } else {
+      const token = localStorage.getItem('token');
+      if (token) {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      }
     }
   }, []);
 
