@@ -1,5 +1,5 @@
 // Constants.tsx
-export const VERSION = "1.1.2";
+export const VERSION = "1.2.1";
 
 export const LATEST_VERSION_URL = "http://localhost:8080/version"; // URL where you check for the latest version
 
